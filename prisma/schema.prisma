@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SuperAdminSettings {
+  id        String   @id @default(cuid())
+  email     String
+  password  String
+  updatedAt DateTime @default(now())
+}
+
+model Business {
+  id               String      @id @default(cuid())
+  name             String
+  slug             String      @unique
+  tier             String      @default("ESSENTIALS")
+  whatsappNumber   String
+  logoUrl          String?
+  createdAt        DateTime    @default(now())
+  password         String?
+  themeColor       String?     @default("#2563eb")
+  businessType     String?
+  facebookUrl      String?
+  hasFreeWifi      Boolean     @default(false)
+  instagramUrl     String?
+  location         String?
+  waiterCallNumber String?
+  showOnHomepage   Boolean     @default(false)
+  status           String      @default("PENDING")
+  email            String?
+  auditLogs        AuditLog[]
+  categories       Category[]
+  gallery          Gallery[]
+  orders           Order[]
+  staff            Staff[]
+}
+
+model Staff {
+  id         String   @id @default(cuid())
+  name       String
+  phone      String
+  isActive   Boolean  @default(true)
+  businessId String
+  orders     Order[]
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  id         String     @id @default(cuid())
+  name       String
+  sortOrder  Int        @default(0)
+  businessId String
+  business   Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  items      MenuItem[]
+}
+
+model MenuItem {
+  id           String    @id @default(cuid())
+  name         String
+  description  String?
+  price        Float
+  imageUrl     String?
+  isAvailable  Boolean   @default(true)
+  categoryId   String?
+  isFeatured   Boolean   @default(false)
+  mainCategory String    @default("Foods")
+  subCategory  String?
+  category     Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+}
+
+model Gallery {
+  id         String   @id @default(cuid())
+  imageUrl   String
+  businessId String
+  createdAt  DateTime @default(now())
+  caption    String?
+  category   String   @default("other")
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id           String   @id @default(cuid())
+  businessId   String
+  tableNumber  String?
+  customerName String?
+  items        Json
+  totalAmount  Float
+  status       String   @default("PENDING")
+  createdAt    DateTime @default(now())
+  staffId      String?
+  business     Business @relation(fields: [businessId], references: [id])
+  staff        Staff?   @relation(fields: [staffId], references: [id])
+}
+
+model AuditLog {
+  id         String    @id @default(cuid())
+  businessId String?
+  actor      String
+  action     String
+  details    String?
+  createdAt  DateTime  @default(now())
+  business   Business? @relation(fields: [businessId], references: [id])
+}
+
+model playing_with_neon {
+  id    Int    @id @default(autoincrement())
+  name  String
+  value Float? @db.Real
+}

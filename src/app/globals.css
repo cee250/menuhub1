@@ -1,0 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  /* Apply the new mobile-optimized font */
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* =========================================
+   MOBILE APP OPTIMIZATIONS
+   ========================================= */
+* {
+  font-family: var(--font-sans);
+  /* Removes the annoying blue highlight when tapping on mobile phones */
+  -webkit-tap-highlight-color: transparent; 
+  /* Makes scrolling feel smoother on iOS */
+  -webkit-overflow-scrolling: touch; 
+}
+
+html {
+  /* Prevents zooming in when tapping inputs on iPhones */
+  touch-action: manipulation; 
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Prevents text selection on UI elements to feel like a native app */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection ONLY inside inputs and text areas */
+input, textarea, select {
+  -webkit-user-select: text;
+  user-select: text;
+  color-scheme: dark;
+}
+
+/* =========================================
+   INPUT FIELD FIXES (light theme defaults only)
+   ========================================= */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="url"],
+input[type="tel"],
+textarea,
+select {
+  font-size: 16px; /* 16px prevents iOS from auto-zooming when typing */
+}
+
+/* Light theme default colors (not !important so Tailwind dark classes can override) */
+:root {
+  --input-bg: #f9fafb;
+  --input-text: #111827;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="url"],
+input[type="tel"],
+textarea,
+select {
+  color: var(--input-text);
+  background-color: var(--input-bg);
+}
+
+input:focus, textarea:focus, select:focus {
+  background-color: #ffffff;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+/* =========================================
+   CUSTOM SCROLLBAR
+   ========================================= */
+::-webkit-scrollbar {
+  width: 6px; /* Thinner scrollbar for mobile */
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+/* =========================================
+   FIX CHROME AUTOFILL DARK BACKGROUND
+   ========================================= */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #0f172a inset !important;
+  box-shadow: 0 0 0 1000px #0f172a inset !important;
+  background-color: #0f172a !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  color: #f8fafc !important;
+  caret-color: #f8fafc !important;
+  transition: background-color 9999s ease-in-out 0s !important;
+}
+
+/* =========================================
+   PREMIUM UTILITIES
+   ========================================= */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  background-size: 200% 200%;
+  animation: gradientMove 4s ease infinite;
+}
+
+@keyframes gradientMove {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.glass-btn {
+  background: rgba(59, 130, 246, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  transition: all 0.2s ease;
+}
+
+.glass-btn:active {
+  transform: scale(0.95); /* Satisfying tap feedback on mobile */
+}
+
+.glass-btn-white {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  transition: all 0.2s ease;
+}
+
+.glass-btn-white:active {
+  transform: scale(0.95);
+}
