@@ -14,6 +14,7 @@ interface BusinessRecord {
   id: string;
   name: string;
   slug: string;
+  email?: string | null;
   whatsappNumber: string;
   waiterCallNumber?: string | null;
   businessType?: string | null;
