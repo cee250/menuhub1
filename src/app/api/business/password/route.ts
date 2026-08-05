@@ -2,6 +2,32 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { canAccessBusiness } from '@/lib/business-auth';
+import { isValidSuperAdminSessionToken } from '@/lib/super-admin';
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const sessionToken = request.cookies.get('menuhub_super_admin')?.value;
+    if (!isValidSuperAdminSessionToken(sessionToken)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { businessId, newPassword } = await request.json();
+    if (!businessId || !newPassword) {
+      return NextResponse.json({ error: 'Missing data' }, { status: 400 });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await prisma.business.update({
+      where: { id: businessId },
+      data: { password: hashedPassword }
+    });
+
+    return NextResponse.json({ message: 'Password reset successful' });
+  } catch (error) {
+    console.error('Super-admin password reset error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
 
 export async function PUT(request: NextRequest) {
   try {

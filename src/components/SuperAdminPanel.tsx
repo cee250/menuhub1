@@ -256,10 +256,11 @@ export default function SuperAdminPanel() {
   }
 
   const filteredBusinesses = useMemo(() => {
+    const query = searchQuery.toLowerCase();
     return businesses.filter(b => 
-      b.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      b.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      b.email?.toLowerCase().includes(searchQuery.toLowerCase())
+      (b.name?.toLowerCase() || '').includes(query) || 
+      (b.slug?.toLowerCase() || '').includes(query) ||
+      (b.email?.toLowerCase() || '').includes(query)
     );
   }, [businesses, searchQuery]);
 
