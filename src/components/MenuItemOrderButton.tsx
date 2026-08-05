@@ -20,6 +20,21 @@ export default function MenuItemOrderButton({
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
+  const trackClick = async (type: string) => {
+    try {
+      await fetch('/api/analytics/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          slug: businessSlug, 
+          eventType: type 
+        }),
+      });
+    } catch (err) {
+      console.error('Analytics error:', err);
+    }
+  };
+
   const createWhatsAppLink = (phone: string) => {
     const cleanPhone = phone.replace('+', '').replace(/\s/g, '');
     const msg = encodeURIComponent(
@@ -29,6 +44,7 @@ export default function MenuItemOrderButton({
   };
 
   const handleOrderClick = (phone: string) => {
+    trackClick('whatsapp_order_click');
     window.open(createWhatsAppLink(phone), '_blank');
     setIsOpen(false);
   };

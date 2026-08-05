@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
         location: location ? String(location) : '',
         tier: tier ? String(tier) : 'ESSENTIALS',
         status: status ? String(status) : 'ACTIVE',
+        activatedAt: (status === 'ACTIVE' || !status) ? new Date() : null,
         showOnHomepage: Boolean(showOnHomepage),
       },
     });
@@ -91,6 +92,11 @@ export async function PATCH(request: NextRequest) {
         if (Object.prototype.hasOwnProperty.call(updates, key)) {
           payload[key] = updates[key];
         }
+      }
+
+      // If activating, set activatedAt
+      if (payload.status === 'ACTIVE') {
+        payload.activatedAt = new Date();
       }
 
       const result = await prisma.business.updateMany({
@@ -147,6 +153,14 @@ export async function PATCH(request: NextRequest) {
 
       if (existing) {
         return NextResponse.json({ error: 'This business URL is already taken.' }, { status: 400 });
+      }
+    }
+
+    // If status is being updated to ACTIVE, set activatedAt if not already set
+    if (payload.status === 'ACTIVE') {
+      const current = await prisma.business.findUnique({ where: { id }, select: { activatedAt: true } });
+      if (!current?.activatedAt) {
+        payload.activatedAt = new Date();
       }
     }
 

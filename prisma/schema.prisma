@@ -32,7 +32,9 @@ model Business {
   waiterCallNumber String?
   showOnHomepage   Boolean     @default(false)
   status           String      @default("PENDING")
+  activatedAt      DateTime?
   email            String?
+  analytics        Analytics[]
   auditLogs        AuditLog[]
   categories       Category[]
   gallery          Gallery[]
@@ -80,6 +82,16 @@ model Gallery {
   createdAt  DateTime @default(now())
   caption    String?
   category   String   @default("other")
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+model Analytics {
+  id         String   @id @default(cuid())
+  businessId String
+  eventType  String
+  userAgent  String?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
   business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 }
 

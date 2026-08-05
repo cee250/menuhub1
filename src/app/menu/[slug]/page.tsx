@@ -2,8 +2,9 @@ import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import CustomerMenuWithTabs from '@/components/CustomerMenuWithTabs';
+import MenuViewTracker from '@/components/MenuViewTracker';
 import WhatsAppOrderButton from '@/components/WhatsAppOrderButton';
-import { Camera, MapPin, Wifi, Globe, Users } from 'lucide-react';
+import { Instagram, MapPin, Wifi, Globe, Facebook } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -62,6 +63,8 @@ export default async function PublicMenuPage({
 
   return (
     <div className="min-h-screen bg-slate-50 pb-32">
+      <MenuViewTracker slug={slug} />
+      
       {/* Header Banner */}
       <div className="relative h-48 sm:h-64 bg-slate-900 overflow-hidden">
         {business.logoUrl ? (
@@ -128,7 +131,7 @@ export default async function PublicMenuPage({
                   rel="noopener noreferrer"
                   className="w-11 h-11 flex items-center justify-center rounded-2xl bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-500 text-white shadow-lg hover:scale-110 transition-transform"
                 >
-                  <Camera size={22} />
+                  <Instagram size={22} />
                 </a>
               )}
               {business.facebookUrl && (
@@ -138,7 +141,7 @@ export default async function PublicMenuPage({
                   rel="noopener noreferrer"
                   className="w-11 h-11 flex items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg hover:scale-110 transition-transform"
                 >
-                  <Users size={22} />
+                  <Facebook size={22} />
                 </a>
               )}
             </div>

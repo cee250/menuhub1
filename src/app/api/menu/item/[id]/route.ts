@@ -21,19 +21,48 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const price = formData.get('price') as string;
     const isFeatured = formData.get('isFeatured') === 'on' || formData.get('isFeatured') === 'true';
     const isAvailable = formData.get('isAvailable') === 'on' || formData.get('isAvailable') === 'true';
+    const mainCategory = formData.get('mainCategory') as string;
+    const subCategory = formData.get('subCategory') as string;
     const file = formData.get('file') as File | null;
 
     if (!name || !price) {
       return NextResponse.json({ error: 'Name and price are required.' }, { status: 400 });
     }
 
-    const existingItem = await prisma.menuItem.findUnique({ where: { id } });
+    const existingItem = await prisma.menuItem.findUnique({ 
+      where: { id },
+      include: { category: true }
+    });
     if (!existingItem) {
       return NextResponse.json({ error: 'Item not found' }, { status: 404 });
     }
 
     if (!(await canAccessItem(id))) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    // Handle Category Change
+    let categoryId = existingItem.categoryId;
+    if ((subCategory || mainCategory) && existingItem.category) {
+      const categoryName = subCategory?.trim() || mainCategory || existingItem.category.name;
+      
+      let category = await prisma.category.findFirst({
+        where: { 
+          businessId: existingItem.category.businessId, 
+          name: categoryName 
+        }
+      });
+
+      if (!category) {
+        category = await prisma.category.create({
+          data: {
+            name: categoryName,
+            businessId: existingItem.category.businessId,
+            sortOrder: 0,
+          }
+        });
+      }
+      categoryId = category.id;
     }
 
     // 🚀 FIX: Keep the old image URL by default
@@ -59,6 +88,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         imageUrl, // Uses new Cloudinary URL, or keeps the old one if no file was uploaded
         isFeatured,
         isAvailable,
+        mainCategory: mainCategory || existingItem.mainCategory,
+        subCategory: subCategory || existingItem.subCategory,
+        categoryId,
       },
     });
 

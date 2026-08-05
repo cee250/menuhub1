@@ -4,8 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import { 
-  QrCode, Zap, MessageCircle, BarChart3, 
-  ImageIcon, Phone, MapPin, Wifi, Moon, Sun, ArrowRight, CheckCircle2, Sparkles, HelpCircle,
+  QrCode, Zap, MessageCircle, BarChart, 
+  Image as LucideImage, Phone, MapPin, Wifi, Moon, Sun, ArrowRight, CircleCheck, Sparkles, CircleHelp,
   ChevronDown, Utensils
 } from 'lucide-react';
 
@@ -199,7 +199,7 @@ export default function AnimatedHomepage({ featured, allBusinesses, businessType
             <ul className="space-y-3">
               {['No app download needed', 'Scan-friendly QR cards', 'Fast updates across your whole catalog'].map((item) => (
                 <li key={item} className={`flex items-start gap-2 text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  <CheckCircle2 className={`mt-0.5 w-4 h-4 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                  <CircleCheck className={`mt-0.5 w-4 h-4 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
                   <span>{item}</span>
                 </li>
               ))}
@@ -227,9 +227,9 @@ export default function AnimatedHomepage({ featured, allBusinesses, businessType
               { icon: QrCode, title: 'QR Code Menus', description: 'Generate beautiful QR codes for instant digital menus.', color: 'text-blue-600', bg: isDark ? 'bg-blue-900/30' : 'bg-blue-50' },
               { icon: MessageCircle, title: 'WhatsApp Ordering', description: 'Customers order directly via WhatsApp with one click.', color: 'text-green-600', bg: isDark ? 'bg-green-900/30' : 'bg-green-50' },
               { icon: Zap, title: 'Instant Updates', description: 'Change prices and items in real-time from your dashboard.', color: 'text-purple-600', bg: isDark ? 'bg-purple-900/30' : 'bg-purple-50' },
-              { icon: ImageIcon, title: 'Photo Gallery', description: 'Showcase your food and ambiance with a beautiful image gallery.', color: 'text-pink-600', bg: isDark ? 'bg-pink-900/30' : 'bg-pink-50' },
+              { icon: BarChart, title: 'Real-Time Analytics', description: 'Track menu views, popular items, and customer engagement instantly.', color: 'text-orange-600', bg: isDark ? 'bg-orange-900/30' : 'bg-orange-50' },
+              { icon: LucideImage, title: 'Photo Gallery', description: 'Showcase your food and ambiance with a beautiful image gallery.', color: 'text-pink-600', bg: isDark ? 'bg-pink-900/30' : 'bg-pink-50' },
               { icon: Phone, title: 'Call Waiter Button', description: 'Let customers call staff directly from their table with one tap.', color: 'text-teal-600', bg: isDark ? 'bg-teal-900/30' : 'bg-teal-50' },
-              { icon: BarChart3, title: 'Dashboard Access', description: 'Keep pricing, menu details, and staff tools organized in one simple control panel.', color: 'text-orange-600', bg: isDark ? 'bg-orange-900/30' : 'bg-orange-50' },
             ].map((feature) => (
               <div 
                 key={feature.title} 
@@ -277,14 +277,14 @@ export default function AnimatedHomepage({ featured, allBusinesses, businessType
               <ul className="space-y-4 mb-8">
                 {[
                   'Full System Access',
-                  '3 Professionally Printed QR Codes Included',
+                  '5 Professionally Printed QR Codes',
                   'Digital Menu Setup',
                   'WhatsApp Ordering Integration',
                   'Real-Time Dashboard Access',
                   'Staff Training & Support'
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-blue-500 shrink-0" />
+                    <CircleCheck className="w-5 h-5 text-blue-500 shrink-0" />
                     <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{item}</span>
                   </li>
                 ))}
@@ -308,12 +308,13 @@ export default function AnimatedHomepage({ featured, allBusinesses, businessType
                 {[
                   'Unlimited Menu Updates',
                   'Ongoing WhatsApp Support',
+                  'Advanced Analytics Tracking',
                   'Cloud Hosting & Maintenance',
                   'New Feature Updates',
                   'Priority Technical Support'
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-blue-500 shrink-0" />
+                    <CircleCheck className="w-5 h-5 text-blue-500 shrink-0" />
                     <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{item}</span>
                   </li>
                 ))}
@@ -333,7 +334,7 @@ export default function AnimatedHomepage({ featured, allBusinesses, businessType
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 rounded-full bg-blue-500/10 px-3 py-1 text-sm font-semibold text-blue-600 mb-4">
-              <HelpCircle className="w-4 h-4" />
+              <CircleHelp className="w-4 h-4" />
               FAQ
             </div>
             <h2 className={`text-2xl sm:text-3xl font-black mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>

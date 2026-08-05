@@ -34,7 +34,7 @@ export default function TermsModal({ isOpen, onClose, onAgree }: TermsModalProps
 
           <section>
             <h3 className="text-white font-semibold mb-2 text-base">2. Service Description</h3>
-            <p>Our service includes a digital menu, QR code generation, WhatsApp ordering integration, and dashboard access. The initial setup fee is 30,000 RWF, which includes full system access and 3 professionally printed QR codes. Additional QR codes are available at an extra cost. The recurring monthly maintenance fee is 15,000 RWF.</p>
+            <p>Our service includes a digital menu, QR code generation, WhatsApp ordering integration, and real-time analytics. The initial setup fee is 30,000 RWF, which includes full system access and 5 professionally printed QR codes. The recurring monthly maintenance fee is 15,000 RWF.</p>
           </section>
 
           <section>

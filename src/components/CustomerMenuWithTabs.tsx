@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import MenuItemOrderButton from '@/components/MenuItemOrderButton';
-import { Languages, Info, Image as ImageIcon, UtensilsCrossed } from 'lucide-react';
+import { Languages, Info, Image as LucideImage, UtensilsCrossed, GlassWater, Star } from 'lucide-react';
 
 type Language = 'en' | 'fr' | 'rw';
 
@@ -61,7 +61,7 @@ export default function CustomerMenuWithTabs({
   featuredItems: any[]; 
   activeWaiters?: { id: string; name: string; phone: string }[];
 }) {
-  const [activeTab, setActiveTab] = useState('menu');
+  const [activeTab, setActiveTab] = useState<'food' | 'drinks' | 'gallery'>('food');
   const [activeFilter, setActiveFilter] = useState('all');
   const [lang, setLang] = useState<Language>('en');
 
@@ -69,6 +69,24 @@ export default function CustomerMenuWithTabs({
   const gallery = business.gallery || [];
   const galleryCategories = ['all', 'food', 'drinks', 'ambiance', 'other'];
   const filteredGallery = activeFilter === 'all' ? gallery : gallery.filter((g: any) => g.category === activeFilter);
+
+  // Filter items based on active tab
+  const isDrinkCategory = (cat: string) => ['Beverages', 'Wine', 'Champagne', 'Drinks'].includes(cat);
+  
+  const currentFeaturedItems = featuredItems.filter(item => {
+    if (activeTab === 'food') return item.mainCategory === 'Foods';
+    if (activeTab === 'drinks') return isDrinkCategory(item.mainCategory);
+    return false;
+  });
+
+  const filteredCategories = business.categories.map((category: any) => {
+    const filteredItems = category.items.filter((item: any) => {
+      if (activeTab === 'food') return item.mainCategory === 'Foods';
+      if (activeTab === 'drinks') return isDrinkCategory(item.mainCategory);
+      return false;
+    });
+    return { ...category, items: filteredItems };
+  }).filter((category: any) => category.items.length > 0);
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -92,47 +110,62 @@ export default function CustomerMenuWithTabs({
       </div>
 
       {/* Main Tabs */}
-      <div className="flex gap-2 mb-8 bg-white/90 backdrop-blur-md p-1.5 rounded-2xl shadow-lg border border-gray-100">
+      <div className="flex gap-2 mb-8 bg-white/90 backdrop-blur-md p-1.5 rounded-2xl shadow-lg border border-gray-100 sticky top-4 z-30">
         <button
           type="button"
-          onClick={() => setActiveTab('menu')}
-          className={`flex-1 flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl font-bold text-base transition-all ${
-            activeTab === 'menu'
+          onClick={() => setActiveTab('food')}
+          className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 px-2 rounded-xl font-bold text-sm sm:text-base transition-all ${
+            activeTab === 'food'
               ? "text-white shadow-md scale-[1.02]"
               : "text-gray-500 hover:bg-gray-50"
           }`}
-          style={activeTab === 'menu' ? { backgroundColor: business.themeColor || '#2563eb' } : {}}
+          style={activeTab === 'food' ? { backgroundColor: business.themeColor || '#2563eb' } : {}}
         >
-          <UtensilsCrossed size={20} />
-          {t.menu}
+          <UtensilsCrossed size={18} />
+          <span className="whitespace-nowrap">{t.food}</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('drinks')}
+          className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 px-2 rounded-xl font-bold text-sm sm:text-base transition-all ${
+            activeTab === 'drinks'
+              ? "text-white shadow-md scale-[1.02]"
+              : "text-gray-500 hover:bg-gray-50"
+          }`}
+          style={activeTab === 'drinks' ? { backgroundColor: business.themeColor || '#2563eb' } : {}}
+        >
+          <GlassWater size={18} />
+          <span className="whitespace-nowrap">{t.drinks}</span>
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('gallery')}
-          className={`flex-1 flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl font-bold text-base transition-all ${
+          className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 px-2 rounded-xl font-bold text-sm sm:text-base transition-all ${
             activeTab === 'gallery'
               ? "text-white shadow-md scale-[1.02]"
               : "text-gray-500 hover:bg-gray-50"
           }`}
           style={activeTab === 'gallery' ? { backgroundColor: business.themeColor || '#2563eb' } : {}}
         >
-          <ImageIcon size={20} />
-          {t.gallery} {gallery.length > 0 && <span className="opacity-70 text-sm ml-1">({gallery.length})</span>}
+          <LucideImage size={18} />
+          <span className="whitespace-nowrap">{t.gallery}</span>
         </button>
       </div>
 
-      {/* MENU TAB */}
-      {activeTab === 'menu' && (
+      {/* FOOD & DRINKS TAB */}
+      {(activeTab === 'food' || activeTab === 'drinks') && (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
           {/* Featured Items */}
-          {featuredItems.length > 0 && (
+          {currentFeaturedItems.length > 0 && (
             <section className="mb-10">
               <h2 className="text-xl font-black text-gray-900 mb-5 flex items-center gap-2">
-                <span className="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center text-yellow-900 shadow-sm">⭐</span>
+                <span className="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center text-yellow-900 shadow-sm">
+                  <Star size={16} fill="currentColor" />
+                </span>
                 {t.specials}
               </h2>
               <div className="grid gap-5">
-                {featuredItems.map((item: any) => (
+                {currentFeaturedItems.map((item: any) => (
                   <div key={item.id} className="group bg-gradient-to-br from-white to-orange-50/30 rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 border border-orange-100 overflow-hidden">
                     <div className="flex flex-col sm:flex-row gap-5 p-5">
                       {item.imageUrl && (
@@ -179,13 +212,13 @@ export default function CustomerMenuWithTabs({
           )}
 
           {/* Regular Categories */}
-          {business.categories.length === 0 ? (
+          {filteredCategories.length === 0 ? (
             <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200">
               <Info className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500 font-medium">{t.empty}</p>
             </div>
           ) : (
-            business.categories.map((category: any) => (
+            filteredCategories.map((category: any) => (
               <section key={category.id} className="mb-10">
                 <h2 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-3">
                   <span className="w-2 h-8 rounded-full" style={{ backgroundColor: business.themeColor || '#2563eb' }}></span>
@@ -237,7 +270,7 @@ export default function CustomerMenuWithTabs({
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
           {gallery.length === 0 ? (
             <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200">
-              <ImageIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <LucideImage className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500 font-medium">{t.noGallery}</p>
             </div>
           ) : (

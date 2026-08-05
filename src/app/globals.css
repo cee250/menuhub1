@@ -45,7 +45,6 @@ body {
 input, textarea, select {
   -webkit-user-select: text;
   user-select: text;
-  color-scheme: dark;
 }
 
 /* =========================================
@@ -81,7 +80,7 @@ select {
 }
 
 input:focus, textarea:focus, select:focus {
-  background-color: #ffffff;
+  /* Removed global white background to prevent invisible text in dark themes */
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   outline: none;
@@ -116,11 +115,10 @@ textarea:-webkit-autofill:hover,
 textarea:-webkit-autofill:focus {
   -webkit-box-shadow: 0 0 0 1000px #0f172a inset !important;
   box-shadow: 0 0 0 1000px #0f172a inset !important;
-  background-color: #0f172a !important;
-  -webkit-text-fill-color: #f8fafc !important;
-  color: #f8fafc !important;
-  caret-color: #f8fafc !important;
-  transition: background-color 9999s ease-in-out 0s !important;
+  -webkit-text-fill-color: #ffffff !important;
+  color: #ffffff !important;
+  caret-color: #ffffff !important;
+  transition: background-color 5000s ease-in-out 0s !important;
 }
 
 /* =========================================

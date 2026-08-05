@@ -118,6 +118,33 @@ export default function EditItemModal({ item, businessSlug, categories, onClose,
               />
             </div>
 
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Menu Type</label>
+                <select
+                  name="mainCategory"
+                  defaultValue={item.mainCategory || 'Foods'}
+                  className="mt-1 block w-full rounded-lg border border-gray-300 p-2.5 bg-gray-50 focus:bg-white"
+                >
+                  <option value="Foods">Food Menu</option>
+                  <option value="Drinks">Drink Menu</option>
+                  <option value="Beverages">Beverages</option>
+                  <option value="Wine">Wine</option>
+                  <option value="Champagne">Champagne</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Sub-Category (Optional)</label>
+                <input
+                  type="text"
+                  name="subCategory"
+                  defaultValue={item.subCategory || ''}
+                  placeholder="e.g. Pizza, Cocktails"
+                  className="mt-1 block w-full rounded-lg border border-gray-300 p-2.5 bg-gray-50 focus:bg-white"
+                />
+              </div>
+            </div>
+
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg">
                 <label className="flex items-center gap-3 cursor-pointer">

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Upload, Plus, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Upload, Plus, CheckCircle, AlertCircle, Loader2, UtensilsCrossed, GlassWater } from 'lucide-react';
 
 interface AddItemFormProps {
   businessSlug: string;
@@ -133,17 +133,23 @@ export default function AddItemForm({ businessSlug, onItemAdded }: AddItemFormPr
 
         {/* MAIN CATEGORY */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1.5">Main Category *</label>
-          <select
-            name="mainCategory"
-            required
-            className="w-full bg-slate-800/50 border border-slate-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none"
-          >
-            <option value="Foods">Foods</option>
-            <option value="Beverages">Beverages</option>
-            <option value="Wine">Wine</option>
-            <option value="Champagne">Champagne</option> 
-          </select>
+          <label className="block text-sm font-medium text-gray-300 mb-1.5">Menu Type *</label>
+          <div className="grid grid-cols-2 gap-4">
+            <label className="relative cursor-pointer group">
+              <input type="radio" name="mainCategory" value="Foods" defaultChecked className="peer sr-only" />
+              <div className="flex items-center justify-center gap-2 bg-slate-800/50 border border-slate-700 text-gray-400 group-hover:bg-slate-700/50 rounded-xl px-4 py-3 transition-all peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-500">
+                <UtensilsCrossed size={18} />
+                <span className="font-bold">Food Menu</span>
+              </div>
+            </label>
+            <label className="relative cursor-pointer group">
+              <input type="radio" name="mainCategory" value="Drinks" className="peer sr-only" />
+              <div className="flex items-center justify-center gap-2 bg-slate-800/50 border border-slate-700 text-gray-400 group-hover:bg-slate-700/50 rounded-xl px-4 py-3 transition-all peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-500">
+                <GlassWater size={18} />
+                <span className="font-bold">Drink Menu</span>
+              </div>
+            </label>
+          </div>
         </div>
 
         {/* SUB-CATEGORY (Manual Text Input ONLY) */}

@@ -8,7 +8,8 @@ import EditItemModal from '@/components/EditItemModal';
 import BusinessSettings from '@/components/BusinessSettings';
 import ChangePassword from '@/components/ChangePassword';
 import GalleryManager from '@/components/GalleryManager';
-import StaffManager from '@/components/StaffManager';
+import AnalyticsPanel from '@/components/AnalyticsPanel';
+import StaffManager from '@/components/StaffManager'; // 🚀 NEW IMPORT
 
 export default function DashboardContent({ business }: { business: any }) {
   const [editingItem, setEditingItem] = useState<any>(null);
@@ -113,6 +114,11 @@ export default function DashboardContent({ business }: { business: any }) {
                               <div className="flex items-center gap-2">
                                 <span className="font-medium text-gray-900">{item.name}</span>
                                 {item.isFeatured && <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full font-medium">⭐ Special</span>}
+                                {['Beverages', 'Wine', 'Champagne', 'Drinks'].includes(item.mainCategory) ? (
+                                  <span className="bg-purple-100 text-purple-700 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Drink</span>
+                                ) : (
+                                  <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Food</span>
+                                )}
                               </div>
                               <div className="text-gray-500 text-sm">{item.price.toLocaleString()} RWF</div>
                             </div>
@@ -142,6 +148,9 @@ export default function DashboardContent({ business }: { business: any }) {
 
         {/* Gallery Manager */}
         <GalleryManager businessSlug={business.slug} gallery={business.gallery || []} />
+
+        {/* Analytics Panel */}
+        <AnalyticsPanel businessSlug={business.slug} />
 
         {/* QR Code Section */}
         <QRCodeDownload slug={business.slug} businessName={business.name} logoUrl={business.logoUrl} themeColor={business.themeColor} />
