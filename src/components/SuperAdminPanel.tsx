@@ -187,6 +187,43 @@ export default function SuperAdminPanel() {
     router.refresh();
   }
 
+  async function updateAdminCreds() {
+    setError('');
+    const res = await fetch('/api/super-admin/settings', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(adminCreds),
+    });
+    if (res.ok) {
+      alert('Admin credentials updated!');
+      setAdminCreds({ ...adminCreds, password: '' });
+    } else {
+      const data = await res.json();
+      setError(data.error || 'Update failed');
+    }
+  }
+
+  async function resetBusinessPassword() {
+    if (!selectedBusinessForPassword || !businessPassword) {
+      setError('Select a business and enter a new password.');
+      return;
+    }
+    setError('');
+    const res = await fetch('/api/business/password', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ businessId: selectedBusinessForPassword, newPassword: businessPassword }),
+    });
+    if (res.ok) {
+      alert('Password reset successful!');
+      setBusinessPassword('');
+      setSelectedBusinessForPassword('');
+    } else {
+      const data = await res.json();
+      setError(data.error || 'Reset failed');
+    }
+  }
+
   // --- Utility: Calculate Days Remaining ---
   function getRenewalInfo(activatedAt: string | null | undefined, createdAt: string) {
     if (!activatedAt) return { days: null, text: 'Not Activated', color: 'text-slate-500' };
