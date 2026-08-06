@@ -56,8 +56,8 @@ export async function POST(request: NextRequest) {
         businessType: businessType ? String(businessType) : 'other',
         location: location ? String(location) : '',
         tier: tier ? String(tier) : 'ESSENTIALS',
-        status: status ? String(status) : 'ACTIVE',
-        activatedAt: (status === 'ACTIVE' || !status) ? new Date() : null,
+        status: status ? String(status) : 'PENDING',
+        activatedAt: status === 'ACTIVE' ? new Date() : null,
         showOnHomepage: Boolean(showOnHomepage),
       },
     });
@@ -129,6 +129,7 @@ export async function PATCH(request: NextRequest) {
       'showOnHomepage',
       'instagramUrl',
       'facebookUrl',
+      'tiktokUrl',
       'password',
     ];
 

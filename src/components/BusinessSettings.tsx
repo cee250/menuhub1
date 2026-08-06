@@ -128,6 +128,16 @@ export default function BusinessSettings({ business }: { business: any }) {
               className="mt-1 block w-full rounded-lg border border-gray-300 p-2.5 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500"
             />
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">TikTok URL (Optional)</label>
+            <input
+              type="url"
+              name="tiktokUrl"
+              defaultValue={business.tiktokUrl || ''}
+              placeholder="https://tiktok.com/@yourbusiness"
+              className="mt-1 block w-full rounded-lg border border-gray-300 p-2.5 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
         </div>
 
         <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">

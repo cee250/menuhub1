@@ -28,6 +28,7 @@ model Business {
   facebookUrl      String?
   hasFreeWifi      Boolean     @default(false)
   instagramUrl     String?
+  tiktokUrl        String?
   location         String?
   waiterCallNumber String?
   showOnHomepage   Boolean     @default(false)

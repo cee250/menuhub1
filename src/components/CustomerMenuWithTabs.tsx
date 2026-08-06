@@ -3,9 +3,18 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import MenuItemOrderButton from '@/components/MenuItemOrderButton';
-import { Languages, Info, Image as LucideImage, UtensilsCrossed, GlassWater, Star } from 'lucide-react';
+import OrderTray from '@/components/OrderTray';
+import { Languages, Info, Image as LucideImage, UtensilsCrossed, GlassWater, Star, ShoppingBag } from 'lucide-react';
 
 type Language = 'en' | 'fr' | 'rw';
+
+type CartItem = {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  imageUrl?: string;
+};
 
 const translations = {
   en: {
@@ -20,7 +29,8 @@ const translations = {
     ambiance: 'Ambiance',
     other: 'Other',
     specialTag: 'SPECIAL',
-    callWaiter: 'Order / Call Waiter'
+    callWaiter: 'Order / Call Waiter',
+    addToCart: 'Add to Tray'
   },
   fr: {
     menu: 'Menu',
@@ -34,7 +44,8 @@ const translations = {
     ambiance: 'Ambiance',
     other: 'Autre',
     specialTag: 'SPÉCIAL',
-    callWaiter: 'Commander / Appeler Serveur'
+    callWaiter: 'Commander / Appeler Serveur',
+    addToCart: 'Ajouter au Plateau'
   },
   rw: {
     menu: 'Urutonde',
@@ -48,7 +59,8 @@ const translations = {
     ambiance: 'Ahantu',
     other: 'Ibindi',
     specialTag: 'IBIDASANZWE',
-    callWaiter: 'Gutumiza / Hamagara Seriveri'
+    callWaiter: 'Gutumiza / Hamagara Seriveri',
+    addToCart: 'Ongeraho ku Plateau'
   }
 };
 
@@ -64,11 +76,41 @@ export default function CustomerMenuWithTabs({
   const [activeTab, setActiveTab] = useState<'food' | 'drinks' | 'gallery'>('food');
   const [activeFilter, setActiveFilter] = useState('all');
   const [lang, setLang] = useState<Language>('en');
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  // Cart management functions
+  const addToCart = (item: any) => {
+    setCartItems((prev) => {
+      const existing = prev.find((ci) => ci.id === item.id);
+      if (existing) {
+        return prev.map((ci) => ci.id === item.id ? { ...ci, quantity: ci.quantity + 1 } : ci);
+      }
+      return [...prev, { id: item.id, name: item.name, price: item.price, quantity: 1, imageUrl: item.imageUrl }];
+    });
+  };
+
+  const updateQuantity = (itemId: string, quantity: number) => {
+    if (quantity <= 0) {
+      removeFromCart(itemId);
+    } else {
+      setCartItems((prev) => prev.map((item) => item.id === itemId ? { ...item, quantity } : item));
+    }
+  };
+
+  const removeFromCart = (itemId: string) => {
+    setCartItems((prev) => prev.filter((item) => item.id !== itemId));
+  };
+
+  const handleSubmitOrder = () => {
+    setCartItems([]);
+  };
 
   const t = translations[lang];
   const gallery = business.gallery || [];
   const galleryCategories = ['all', 'food', 'drinks', 'ambiance', 'other'];
   const filteredGallery = activeFilter === 'all' ? gallery : gallery.filter((g: any) => g.category === activeFilter);
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   // Filter items based on active tab
   const isDrinkCategory = (cat: string) => ['Beverages', 'Wine', 'Champagne', 'Drinks'].includes(cat);
@@ -90,8 +132,36 @@ export default function CustomerMenuWithTabs({
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Language Switcher */}
-      <div className="flex justify-end mb-4 gap-2">
+      <OrderTray
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        items={cartItems}
+        onUpdateQuantity={updateQuantity}
+        onRemoveItem={removeFromCart}
+        onSubmitOrder={handleSubmitOrder}
+        businessSlug={business.slug}
+        businessWhatsapp={business.whatsappNumber}
+        activeWaiters={activeWaiters}
+        themeColor={business.themeColor}
+      />
+
+      {/* Top Bar with Language Switcher and Cart Button */}
+      <div className="flex justify-between items-center mb-4 gap-2">
+        {/* Cart Button */}
+        <button
+          onClick={() => setIsCartOpen(true)}
+          className="relative p-3 rounded-full bg-white/80 backdrop-blur-sm shadow-sm border border-gray-100 hover:shadow-md transition-all"
+          style={{ borderColor: business.themeColor }}
+        >
+          <ShoppingBag size={20} style={{ color: business.themeColor }} />
+          {cartCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-black w-5 h-5 rounded-full flex items-center justify-center">
+              {cartCount}
+            </span>
+          )}
+        </button>
+
+        {/* Language Switcher */}
         <div className="bg-white/80 backdrop-blur-sm p-1 rounded-full shadow-sm border border-gray-100 flex gap-1">
           {(['en', 'fr', 'rw'] as Language[]).map((l) => (
             <button
@@ -189,19 +259,17 @@ export default function CustomerMenuWithTabs({
                           </div>
                           {item.description && <p className="text-sm text-gray-600 leading-relaxed mb-3">{item.description}</p>}
                         </div>
-                        <div className="flex items-center justify-between mt-auto">
+                        <div className="flex items-center justify-between mt-auto gap-3">
                           <p className="font-black text-2xl" style={{ color: business.themeColor || '#2563eb' }}>
                             {item.price.toLocaleString()} <span className="text-sm font-bold opacity-70">RWF</span>
                           </p>
-                        </div>
-                        <div className="mt-4">
-                          <MenuItemOrderButton 
-                            itemName={item.name}
-                            itemPrice={item.price}
-                            businessSlug={business.slug}
-                            businessWhatsapp={business.whatsappNumber}
-                            activeWaiters={activeWaiters}
-                          />
+                          <button
+                            onClick={() => addToCart(item)}
+                            className="px-4 py-2 rounded-lg font-bold text-white text-sm transition-all hover:scale-105"
+                            style={{ backgroundColor: business.themeColor || '#2563eb' }}
+                          >
+                            {t.addToCart}
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -231,9 +299,18 @@ export default function CustomerMenuWithTabs({
                         <div className="flex-1 min-w-0">
                           <h3 className="font-bold text-gray-900 text-lg group-hover:text-blue-600 transition-colors">{item.name}</h3>
                           {item.description && <p className="text-sm text-gray-500 mt-1 line-clamp-2 leading-relaxed">{item.description}</p>}
-                          <p className="font-black text-xl mt-3" style={{ color: business.themeColor || '#2563eb' }}>
-                            {item.price.toLocaleString()} <span className="text-xs font-bold opacity-60">RWF</span>
-                          </p>
+                          <div className="flex items-center justify-between mt-3 gap-2">
+                            <p className="font-black text-xl" style={{ color: business.themeColor || '#2563eb' }}>
+                              {item.price.toLocaleString()} <span className="text-xs font-bold opacity-60">RWF</span>
+                            </p>
+                            <button
+                              onClick={() => addToCart(item)}
+                              className="px-3 py-1 rounded-lg font-bold text-white text-xs transition-all hover:scale-105"
+                              style={{ backgroundColor: business.themeColor || '#2563eb' }}
+                            >
+                              {t.addToCart}
+                            </button>
+                          </div>
                         </div>
                         {item.imageUrl && (
                           <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden shadow-sm shrink-0">
@@ -246,15 +323,6 @@ export default function CustomerMenuWithTabs({
                             />
                           </div>
                         )}
-                      </div>
-                      <div className="mt-4">
-                        <MenuItemOrderButton 
-                          itemName={item.name}
-                          itemPrice={item.price}
-                          businessSlug={business.slug}
-                          businessWhatsapp={business.whatsappNumber}
-                          activeWaiters={activeWaiters}
-                        />
                       </div>
                     </div>
                   ))}
