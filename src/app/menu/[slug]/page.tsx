@@ -1,10 +1,9 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import CustomerMenuWithTabs from '@/components/CustomerMenuWithTabs';
 import MenuViewTracker from '@/components/MenuViewTracker';
-import WhatsAppOrderButton from '@/components/WhatsAppOrderButton';
-import { Instagram, MapPin, Wifi, Globe, Facebook } from 'lucide-react';
+import MenuPageClient from '@/components/MenuPageClient';
+import { Instagram, MapPin, Wifi, Facebook } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -148,23 +147,13 @@ export default async function PublicMenuPage({
           </div>
         </div>
 
-        {/* Menu Content */}
-        <div className="mt-8">
-          <CustomerMenuWithTabs 
-            business={publicBusiness} 
-            featuredItems={featuredItems} 
-            activeWaiters={business.staff || []}
-          />
-        </div>
+        {/* Client Side Content (Menu & Buttons) */}
+        <MenuPageClient 
+          business={publicBusiness} 
+          featuredItems={featuredItems} 
+          activeWaiters={business.staff || []}
+        />
       </div>
-
-      {/* Global Order Button */}
-      <WhatsAppOrderButton 
-        whatsappNumber={business.whatsappNumber} 
-        waiterCallNumber={business.waiterCallNumber}
-        businessName={business.name}
-        themeColor={business.themeColor}
-      />
 
       {/* Footer */}
       <div className="mt-20 text-center px-4">

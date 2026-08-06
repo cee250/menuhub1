@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import MenuItemOrderButton from '@/components/MenuItemOrderButton';
-import OrderTray from '@/components/OrderTray';
+import OrderCart from '@/components/OrderCart';
 import { Languages, Info, Image as LucideImage, UtensilsCrossed, GlassWater, Star, ShoppingBag } from 'lucide-react';
 
 type Language = 'en' | 'fr' | 'rw';
@@ -30,7 +29,7 @@ const translations = {
     other: 'Other',
     specialTag: 'SPECIAL',
     callWaiter: 'Order / Call Waiter',
-    addToCart: 'Add to Tray'
+    addToCart: 'Add to Cart'
   },
   fr: {
     menu: 'Menu',
@@ -45,7 +44,7 @@ const translations = {
     other: 'Autre',
     specialTag: 'SPÉCIAL',
     callWaiter: 'Commander / Appeler Serveur',
-    addToCart: 'Ajouter au Plateau'
+    addToCart: 'Ajouter au Panier'
   },
   rw: {
     menu: 'Urutonde',
@@ -60,57 +59,41 @@ const translations = {
     other: 'Ibindi',
     specialTag: 'IBIDASANZWE',
     callWaiter: 'Gutumiza / Hamagara Seriveri',
-    addToCart: 'Ongeraho ku Plateau'
+    addToCart: 'Ongeraho ku Kagare'
   }
 };
 
 export default function CustomerMenuWithTabs({ 
   business, 
   featuredItems, 
-  activeWaiters = [] 
+  activeWaiters = [],
+  cartItems,
+  isCartOpen,
+  setIsCartOpen,
+  addToCart,
+  updateQuantity,
+  removeFromCart,
+  handleSubmitOrder
 }: { 
   business: any; 
   featuredItems: any[]; 
   activeWaiters?: { id: string; name: string; phone: string }[];
+  cartItems: CartItem[];
+  isCartOpen: boolean;
+  setIsCartOpen: (open: boolean) => void;
+  addToCart: (item: any) => void;
+  updateQuantity: (itemId: string, quantity: number) => void;
+  removeFromCart: (itemId: string) => void;
+  handleSubmitOrder: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<'food' | 'drinks' | 'gallery'>('food');
   const [activeFilter, setActiveFilter] = useState('all');
   const [lang, setLang] = useState<Language>('en');
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-
-  // Cart management functions
-  const addToCart = (item: any) => {
-    setCartItems((prev) => {
-      const existing = prev.find((ci) => ci.id === item.id);
-      if (existing) {
-        return prev.map((ci) => ci.id === item.id ? { ...ci, quantity: ci.quantity + 1 } : ci);
-      }
-      return [...prev, { id: item.id, name: item.name, price: item.price, quantity: 1, imageUrl: item.imageUrl }];
-    });
-  };
-
-  const updateQuantity = (itemId: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(itemId);
-    } else {
-      setCartItems((prev) => prev.map((item) => item.id === itemId ? { ...item, quantity } : item));
-    }
-  };
-
-  const removeFromCart = (itemId: string) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== itemId));
-  };
-
-  const handleSubmitOrder = () => {
-    setCartItems([]);
-  };
 
   const t = translations[lang];
   const gallery = business.gallery || [];
   const galleryCategories = ['all', 'food', 'drinks', 'ambiance', 'other'];
   const filteredGallery = activeFilter === 'all' ? gallery : gallery.filter((g: any) => g.category === activeFilter);
-  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   // Filter items based on active tab
   const isDrinkCategory = (cat: string) => ['Beverages', 'Wine', 'Champagne', 'Drinks'].includes(cat);
@@ -132,7 +115,7 @@ export default function CustomerMenuWithTabs({
 
   return (
     <div className="max-w-4xl mx-auto">
-      <OrderTray
+      <OrderCart
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
         items={cartItems}
@@ -145,22 +128,8 @@ export default function CustomerMenuWithTabs({
         themeColor={business.themeColor}
       />
 
-      {/* Top Bar with Language Switcher and Cart Button */}
-      <div className="flex justify-between items-center mb-4 gap-2">
-        {/* Cart Button */}
-        <button
-          onClick={() => setIsCartOpen(true)}
-          className="relative p-3 rounded-full bg-white/80 backdrop-blur-sm shadow-sm border border-gray-100 hover:shadow-md transition-all"
-          style={{ borderColor: business.themeColor }}
-        >
-          <ShoppingBag size={20} style={{ color: business.themeColor }} />
-          {cartCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-black w-5 h-5 rounded-full flex items-center justify-center">
-              {cartCount}
-            </span>
-          )}
-        </button>
-
+      {/* Top Bar with Language Switcher */}
+      <div className="flex justify-end items-center mb-4 gap-2">
         {/* Language Switcher */}
         <div className="bg-white/80 backdrop-blur-sm p-1 rounded-full shadow-sm border border-gray-100 flex gap-1">
           {(['en', 'fr', 'rw'] as Language[]).map((l) => (
@@ -343,40 +312,41 @@ export default function CustomerMenuWithTabs({
             </div>
           ) : (
             <>
-              <div className="flex gap-2 flex-wrap mb-8 justify-center">
+              <div className="flex flex-wrap gap-2 mb-8 justify-center">
                 {galleryCategories.map((cat) => (
                   <button
                     key={cat}
-                    type="button"
                     onClick={() => setActiveFilter(cat)}
-                    className={`px-5 py-2.5 rounded-full text-sm font-bold capitalize transition-all border ${
+                    className={`px-5 py-2 rounded-full text-xs font-black uppercase tracking-wider transition-all ${
                       activeFilter === cat
-                        ? "text-white shadow-md border-transparent"
-                        : "bg-white text-gray-600 border-gray-100 hover:bg-gray-50"
+                        ? "text-white shadow-md scale-105"
+                        : "bg-white text-gray-500 hover:bg-gray-50 border border-gray-100"
                     }`}
                     style={activeFilter === cat ? { backgroundColor: business.themeColor || '#2563eb' } : {}}
                   >
-                    {t[cat as keyof typeof t] || cat}
+                    {cat === 'all' ? 'All' : cat}
                   </button>
                 ))}
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {filteredGallery.map((item: any) => (
-                  <div key={item.id} className="relative group overflow-hidden rounded-3xl shadow-md hover:shadow-2xl transition-all duration-500 border border-white">
-                    <div className="relative aspect-square">
-                      <Image
-                        src={item.imageUrl}
-                        alt={item.title || 'Gallery image'}
-                        fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-700"
-                        sizes="(max-width: 768px) 50vw, 33vw"
-                      />
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5">
-                      <div className="text-white text-sm font-black truncate mb-1">{item.title || item.caption}</div>
-                      <div className="text-white/70 text-[10px] font-bold uppercase tracking-widest">{item.category || 'Gallery'}</div>
-                    </div>
+                  <div 
+                    key={item.id} 
+                    className="group relative aspect-square rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500"
+                  >
+                    <Image
+                      src={item.url}
+                      alt={item.caption || 'Gallery image'}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-700"
+                      sizes="(max-width: 640px) 50vw, 33vw"
+                    />
+                    {item.caption && (
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                        <p className="text-white text-xs font-bold leading-tight">{item.caption}</p>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

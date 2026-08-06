@@ -12,7 +12,7 @@ type CartItem = {
   imageUrl?: string;
 };
 
-type OrderTrayProps = {
+type OrderCartProps = {
   isOpen: boolean;
   onClose: () => void;
   items: CartItem[];
@@ -25,7 +25,7 @@ type OrderTrayProps = {
   themeColor?: string;
 };
 
-export default function OrderTray({
+export default function OrderCart({
   isOpen,
   onClose,
   items,
@@ -36,7 +36,7 @@ export default function OrderTray({
   businessWhatsapp,
   activeWaiters = [],
   themeColor = '#2563eb',
-}: OrderTrayProps) {
+}: OrderCartProps) {
   const [selectedWaiter, setSelectedWaiter] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -89,14 +89,14 @@ export default function OrderTray({
         onClick={onClose}
       />
 
-      {/* Tray Drawer */}
+      {/* Cart Drawer */}
       <div className="fixed right-0 top-0 bottom-0 w-full sm:w-96 bg-white shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-300">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200" style={{ backgroundColor: themeColor }}>
           <div className="flex items-center gap-3">
             <ShoppingBag size={24} className="text-white" />
             <div>
-              <h2 className="text-xl font-black text-white">Order Tray</h2>
+              <h2 className="text-xl font-black text-white">Order Cart</h2>
               <p className="text-sm text-white/80">{totalItems} item{totalItems !== 1 ? 's' : ''}</p>
             </div>
           </div>
@@ -113,7 +113,7 @@ export default function OrderTray({
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <ShoppingBag size={48} className="text-gray-300 mb-3" />
-              <p className="text-gray-500 font-medium">Your tray is empty</p>
+              <p className="text-gray-500 font-medium">Your cart is empty</p>
               <p className="text-sm text-gray-400">Add items to get started</p>
             </div>
           ) : (
