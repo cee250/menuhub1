@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Plus, Minus, ShoppingBag, Send } from 'lucide-react';
+import { X, Plus, Minus, ShoppingBag, Send, MapPin } from 'lucide-react';
 import Image from 'next/image';
 
 type CartItem = {
@@ -38,6 +38,7 @@ export default function OrderCart({
   themeColor = '#2563eb',
 }: OrderCartProps) {
   const [selectedWaiter, setSelectedWaiter] = useState<string>('');
+  const [locationInfo, setLocationInfo] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
@@ -61,11 +62,11 @@ export default function OrderCart({
 
       // Build order message
       const orderDetails = items
-        .map((item) => `${item.name} x${item.quantity} = ${(item.price * item.quantity).toLocaleString()} RWF`)
+        .map((item) => `• ${item.name} x${item.quantity} = ${(item.price * item.quantity).toLocaleString()} RWF`)
         .join('\n');
 
-      const message = `New Order from MenuHub:\n\n${orderDetails}\n\nTotal: ${totalPrice.toLocaleString()} RWF${
-        selectedWaiter ? `\nAssigned Waiter: ${selectedWaiter}` : ''
+      const message = `I'd like to Order:\n\n${orderDetails}\n\nTotal: ${totalPrice.toLocaleString()} RWF\n\n📍 Location/Table: ${locationInfo || 'Not specified'}${
+        selectedWaiter ? `\n👤 Assigned Waiter: ${selectedWaiter}` : ''
       }`;
 
       // Send via WhatsApp
@@ -166,17 +167,32 @@ export default function OrderCart({
 
         {/* Footer */}
         {items.length > 0 && (
-          <div className="border-t border-gray-200 p-4 space-y-4">
+          <div className="border-t border-gray-200 p-4 space-y-4 bg-gray-50">
+            {/* Location/Table Input */}
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1.5 flex items-center gap-1.5">
+                <MapPin size={12} />
+                Table / Location / Delivery Info
+              </label>
+              <input
+                type="text"
+                value={locationInfo}
+                onChange={(e) => setLocationInfo(e.target.value)}
+                placeholder="e.g. Table 5, I'm outside, or Motor delivery"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-medium text-gray-900 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none bg-white shadow-sm"
+              />
+            </div>
+
             {/* Waiter Selection */}
             {activeWaiters.length > 0 && (
               <div>
-                <label className="block text-xs font-black uppercase tracking-widest text-gray-600 mb-2">
+                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1.5">
                   Assign Waiter (Optional)
                 </label>
                 <select
                   value={selectedWaiter}
                   onChange={(e) => setSelectedWaiter(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-medium text-gray-900 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none bg-white shadow-sm appearance-none"
                 >
                   <option value="">No preference</option>
                   {activeWaiters.map((waiter) => (
@@ -189,17 +205,13 @@ export default function OrderCart({
             )}
 
             {/* Total */}
-            <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-gray-600 font-medium">Subtotal:</span>
+            <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-gray-500 text-sm font-bold">Subtotal</span>
                 <span className="font-bold text-gray-900">{totalPrice.toLocaleString()} RWF</span>
               </div>
-              <div className="flex justify-between items-center pb-3 border-b border-gray-300">
-                <span className="text-gray-600 font-medium">Items:</span>
-                <span className="font-bold text-gray-900">{totalItems}</span>
-              </div>
-              <div className="flex justify-between items-center mt-3">
-                <span className="text-lg font-black text-gray-900">Total:</span>
+              <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-50">
+                <span className="text-lg font-black text-gray-900">Total</span>
                 <span className="text-2xl font-black" style={{ color: themeColor }}>
                   {totalPrice.toLocaleString()} RWF
                 </span>
@@ -210,17 +222,17 @@ export default function OrderCart({
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="w-full flex items-center justify-center gap-2 font-bold py-3 rounded-xl text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 font-black py-4 rounded-2xl text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl active:scale-[0.98]"
               style={{ backgroundColor: themeColor }}
             >
-              <Send size={18} />
+              <Send size={20} />
               {isSubmitting ? 'Sending...' : 'Send Order via WhatsApp'}
             </button>
 
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="w-full py-2 rounded-lg border border-gray-300 text-gray-700 font-bold hover:bg-gray-50 transition-all"
+              className="w-full py-3 rounded-xl border border-gray-200 text-gray-500 font-bold hover:bg-white hover:text-gray-700 transition-all text-sm"
             >
               Continue Shopping
             </button>

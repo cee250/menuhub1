@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import OrderCart from '@/components/OrderCart';
-import { Languages, Info, Image as LucideImage, UtensilsCrossed, GlassWater, Star, ShoppingBag } from 'lucide-react';
+import { Languages, Info, Image as LucideImage, UtensilsCrossed, GlassWater, Star, ShoppingBag, Check } from 'lucide-react';
 
 type Language = 'en' | 'fr' | 'rw';
 
@@ -29,7 +29,8 @@ const translations = {
     other: 'Other',
     specialTag: 'SPECIAL',
     callWaiter: 'Order / Call Waiter',
-    addToCart: 'Add to Cart'
+    addToCart: 'Add to Cart',
+    added: 'Added'
   },
   fr: {
     menu: 'Menu',
@@ -44,7 +45,8 @@ const translations = {
     other: 'Autre',
     specialTag: 'SPÉCIAL',
     callWaiter: 'Commander / Appeler Serveur',
-    addToCart: 'Ajouter au Panier'
+    addToCart: 'Ajouter au Panier',
+    added: 'Ajouté'
   },
   rw: {
     menu: 'Urutonde',
@@ -59,7 +61,8 @@ const translations = {
     other: 'Ibindi',
     specialTag: 'IBIDASANZWE',
     callWaiter: 'Gutumiza / Hamagara Seriveri',
-    addToCart: 'Ongeraho ku Kagare'
+    addToCart: 'Ongeraho ku Kagare',
+    added: 'Byongeweho'
   }
 };
 
@@ -112,6 +115,8 @@ export default function CustomerMenuWithTabs({
     });
     return { ...category, items: filteredItems };
   }).filter((category: any) => category.items.length > 0);
+
+  const isInCart = (itemId: string) => cartItems.some(item => item.id === itemId);
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -204,46 +209,67 @@ export default function CustomerMenuWithTabs({
                 {t.specials}
               </h2>
               <div className="grid gap-5">
-                {currentFeaturedItems.map((item: any) => (
-                  <div key={item.id} className="group bg-gradient-to-br from-white to-orange-50/30 rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 border border-orange-100 overflow-hidden">
-                    <div className="flex flex-col sm:flex-row gap-5 p-5">
-                      {item.imageUrl && (
-                        <div className="relative w-full sm:w-32 h-48 sm:h-32 rounded-2xl overflow-hidden shadow-inner shrink-0">
-                          <Image 
-                            src={item.imageUrl} 
-                            alt={item.name} 
-                            fill
-                            className="object-cover group-hover:scale-110 transition-transform duration-500"
-                            sizes="(max-width: 640px) 100vw, 128px"
-                          />
-                        </div>
-                      )}
-                      <div className="flex-1 flex flex-col justify-between">
-                        <div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-black text-gray-900 text-xl">{item.name}</h3>
-                            <span className="bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded-full font-black tracking-wider shadow-sm">
-                              {t.specialTag}
-                            </span>
+                {currentFeaturedItems.map((item: any) => {
+                  const added = isInCart(item.id);
+                  return (
+                    <div key={item.id} className="group bg-gradient-to-br from-white to-orange-50/30 rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 border border-orange-100 overflow-hidden">
+                      <div className="flex flex-col sm:flex-row gap-5 p-5">
+                        {item.imageUrl && (
+                          <div className="relative w-full sm:w-32 h-48 sm:h-32 rounded-2xl overflow-hidden shadow-inner shrink-0">
+                            <Image 
+                              src={item.imageUrl} 
+                              alt={item.name} 
+                              fill
+                              className="object-cover group-hover:scale-110 transition-transform duration-500"
+                              sizes="(max-width: 640px) 100vw, 128px"
+                            />
+                            {added && (
+                              <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center animate-in fade-in duration-300">
+                                <div className="bg-white rounded-full p-2 shadow-lg scale-110">
+                                  <Check size={20} className="text-green-600 font-black" />
+                                </div>
+                              </div>
+                            )}
                           </div>
-                          {item.description && <p className="text-sm text-gray-600 leading-relaxed mb-3">{item.description}</p>}
-                        </div>
-                        <div className="flex items-center justify-between mt-auto gap-3">
-                          <p className="font-black text-2xl" style={{ color: business.themeColor || '#2563eb' }}>
-                            {item.price.toLocaleString()} <span className="text-sm font-bold opacity-70">RWF</span>
-                          </p>
-                          <button
-                            onClick={() => addToCart(item)}
-                            className="px-4 py-2 rounded-lg font-bold text-white text-sm transition-all hover:scale-105"
-                            style={{ backgroundColor: business.themeColor || '#2563eb' }}
-                          >
-                            {t.addToCart}
-                          </button>
+                        )}
+                        <div className="flex-1 flex flex-col justify-between">
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3 className="font-black text-gray-900 text-xl">{item.name}</h3>
+                              <span className="bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded-full font-black tracking-wider shadow-sm">
+                                {t.specialTag}
+                              </span>
+                            </div>
+                            {item.description && <p className="text-sm text-gray-600 leading-relaxed mb-3">{item.description}</p>}
+                          </div>
+                          <div className="flex items-center justify-between mt-auto gap-3">
+                            <p className="font-black text-2xl" style={{ color: business.themeColor || '#2563eb' }}>
+                              {item.price.toLocaleString()} <span className="text-sm font-bold opacity-70">RWF</span>
+                            </p>
+                            <button
+                              onClick={() => addToCart(item)}
+                              className={`px-4 py-2 rounded-xl font-black text-sm transition-all flex items-center gap-2 ${
+                                added 
+                                ? 'bg-green-50 text-green-600 border-2 border-green-200' 
+                                : 'text-white shadow-md hover:scale-105 active:scale-95'
+                              }`}
+                              style={!added ? { backgroundColor: business.themeColor || '#2563eb' } : {}}
+                            >
+                              {added ? (
+                                <>
+                                  <Check size={16} strokeWidth={3} />
+                                  {t.added}
+                                </>
+                              ) : (
+                                t.addToCart
+                              )}
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </section>
           )}
@@ -262,39 +288,60 @@ export default function CustomerMenuWithTabs({
                   {category.name}
                 </h2>
                 <div className="grid gap-4">
-                  {category.items.map((item: any) => (
-                    <div key={item.id} className="group bg-white rounded-2xl shadow-sm p-4 border border-gray-100 hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
-                      <div className="flex justify-between items-start gap-5">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-gray-900 text-lg group-hover:text-blue-600 transition-colors">{item.name}</h3>
-                          {item.description && <p className="text-sm text-gray-500 mt-1 line-clamp-2 leading-relaxed">{item.description}</p>}
-                          <div className="flex items-center justify-between mt-3 gap-2">
-                            <p className="font-black text-xl" style={{ color: business.themeColor || '#2563eb' }}>
-                              {item.price.toLocaleString()} <span className="text-xs font-bold opacity-60">RWF</span>
-                            </p>
-                            <button
-                              onClick={() => addToCart(item)}
-                              className="px-3 py-1 rounded-lg font-bold text-white text-xs transition-all hover:scale-105"
-                              style={{ backgroundColor: business.themeColor || '#2563eb' }}
-                            >
-                              {t.addToCart}
-                            </button>
+                  {category.items.map((item: any) => {
+                    const added = isInCart(item.id);
+                    return (
+                      <div key={item.id} className="group bg-white rounded-2xl shadow-sm p-4 border border-gray-100 hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
+                        <div className="flex justify-between items-start gap-5">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-bold text-gray-900 text-lg group-hover:text-blue-600 transition-colors">{item.name}</h3>
+                            {item.description && <p className="text-sm text-gray-500 mt-1 line-clamp-2 leading-relaxed">{item.description}</p>}
+                            <div className="flex items-center justify-between mt-3 gap-2">
+                              <p className="font-black text-xl" style={{ color: business.themeColor || '#2563eb' }}>
+                                {item.price.toLocaleString()} <span className="text-xs font-bold opacity-60">RWF</span>
+                              </p>
+                              <button
+                                onClick={() => addToCart(item)}
+                                className={`px-3 py-1.5 rounded-lg font-black text-xs transition-all flex items-center gap-1.5 ${
+                                  added 
+                                  ? 'bg-green-50 text-green-600 border border-green-100' 
+                                  : 'text-white shadow-sm hover:scale-105 active:scale-95'
+                                }`}
+                                style={!added ? { backgroundColor: business.themeColor || '#2563eb' } : {}}
+                              >
+                                {added ? (
+                                  <>
+                                    <Check size={14} strokeWidth={3} />
+                                    {t.added}
+                                  </>
+                                ) : (
+                                  t.addToCart
+                                )}
+                              </button>
+                            </div>
                           </div>
+                          {item.imageUrl && (
+                            <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden shadow-sm shrink-0">
+                              <Image 
+                                src={item.imageUrl} 
+                                alt={item.name} 
+                                fill
+                                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                sizes="112px"
+                              />
+                              {added && (
+                                <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px] flex items-center justify-center animate-in fade-in duration-300">
+                                  <div className="bg-white rounded-full p-1.5 shadow-md">
+                                    <Check size={16} className="text-green-600 font-black" />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
-                        {item.imageUrl && (
-                          <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden shadow-sm shrink-0">
-                            <Image 
-                              src={item.imageUrl} 
-                              alt={item.name} 
-                              fill
-                              className="object-cover group-hover:scale-105 transition-transform duration-300"
-                              sizes="112px"
-                            />
-                          </div>
-                        )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </section>
             ))
