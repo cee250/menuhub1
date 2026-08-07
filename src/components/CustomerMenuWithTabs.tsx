@@ -29,7 +29,7 @@ const translations = {
     other: 'Other',
     specialTag: 'SPECIAL',
     callWaiter: 'Order / Call Waiter',
-    addToCart: 'Add to Cart',
+    addToCart: 'Add to Order',
     added: 'Added'
   },
   fr: {
@@ -45,7 +45,7 @@ const translations = {
     other: 'Autre',
     specialTag: 'SPÉCIAL',
     callWaiter: 'Commander / Appeler Serveur',
-    addToCart: 'Ajouter au Panier',
+    addToCart: 'Ajouter à la Commande',
     added: 'Ajouté'
   },
   rw: {
@@ -61,7 +61,7 @@ const translations = {
     other: 'Ibindi',
     specialTag: 'IBIDASANZWE',
     callWaiter: 'Gutumiza / Hamagara Seriveri',
-    addToCart: 'Ongeraho ku Kagare',
+    addToCart: 'Ongeraho kuri Order',
     added: 'Byongeweho'
   }
 };

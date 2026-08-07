@@ -97,7 +97,7 @@ export default function OrderCart({
           <div className="flex items-center gap-3">
             <ShoppingBag size={24} className="text-white" />
             <div>
-              <h2 className="text-xl font-black text-white">Order Cart</h2>
+              <h2 className="text-xl font-black text-white">Your Order</h2>
               <p className="text-sm text-white/80">{totalItems} item{totalItems !== 1 ? 's' : ''}</p>
             </div>
           </div>
