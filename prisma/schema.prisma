@@ -73,6 +73,7 @@ model MenuItem {
   isFeatured   Boolean   @default(false)
   mainCategory String    @default("Foods")
   subCategory  String?
+  sortOrder    Int       @default(0)
   category     Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 }
 

@@ -35,7 +35,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ slug
       include: {
         categories: {
           include: { 
-            items: { orderBy: { name: 'asc' } } 
+            items: { orderBy: [ { sortOrder: 'asc' }, { name: 'asc' } ] } 
           },
           orderBy: { sortOrder: 'asc' },
         },

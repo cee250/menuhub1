@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import OrderCart from '@/components/OrderCart';
-import { Languages, Info, Image as LucideImage, UtensilsCrossed, GlassWater, Star, ShoppingBag, Check } from 'lucide-react';
+import { Languages, Info, Image as LucideImage, UtensilsCrossed, GlassWater, Star, ShoppingBag, Check, X, Maximize2 } from 'lucide-react';
 
 type Language = 'en' | 'fr' | 'rw';
 
@@ -92,6 +92,7 @@ export default function CustomerMenuWithTabs({
   const [activeTab, setActiveTab] = useState<'food' | 'drinks' | 'gallery'>('food');
   const [activeFilter, setActiveFilter] = useState('all');
   const [lang, setLang] = useState<Language>('en');
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const t = translations[lang];
   const gallery = business.gallery || [];
@@ -132,6 +133,28 @@ export default function CustomerMenuWithTabs({
         activeWaiters={activeWaiters}
         themeColor={business.themeColor}
       />
+
+      {/* Lightbox Modal */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 bg-black/95 z-[10000] flex items-center justify-center p-4 animate-in fade-in duration-300"
+          onClick={() => setSelectedImage(null)}
+        >
+          <button 
+            className="absolute top-6 right-6 text-white/70 hover:text-white transition-colors"
+            onClick={() => setSelectedImage(null)}
+          >
+            <X size={32} />
+          </button>
+          <div className="relative w-full max-w-5xl aspect-auto max-h-[90vh]">
+            <img 
+              src={selectedImage} 
+              alt="Full view" 
+              className="w-full h-full object-contain rounded-lg shadow-2xl"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Top Bar with Language Switcher */}
       <div className="flex justify-end items-center mb-4 gap-2">
@@ -220,8 +243,9 @@ export default function CustomerMenuWithTabs({
                               src={item.imageUrl} 
                               alt={item.name} 
                               fill
-                              className="object-cover group-hover:scale-110 transition-transform duration-500"
+                              className="object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
                               sizes="(max-width: 640px) 100vw, 128px"
+                              onClick={() => setSelectedImage(item.imageUrl)}
                             />
                             {added && (
                               <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center animate-in fade-in duration-300">
@@ -326,8 +350,9 @@ export default function CustomerMenuWithTabs({
                                 src={item.imageUrl} 
                                 alt={item.name} 
                                 fill
-                                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                className="object-cover group-hover:scale-105 transition-transform duration-300 cursor-pointer"
                                 sizes="112px"
+                                onClick={() => setSelectedImage(item.imageUrl)}
                               />
                               {added && (
                                 <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px] flex items-center justify-center animate-in fade-in duration-300">
@@ -380,17 +405,21 @@ export default function CustomerMenuWithTabs({
                 {filteredGallery.map((item: any) => (
                   <div 
                     key={item.id} 
-                    className="group relative aspect-square rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500"
+                    className="group relative aspect-square rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer"
+                    onClick={() => setSelectedImage(item.imageUrl)}
                   >
                     <Image
-                      src={item.url}
+                      src={item.imageUrl}
                       alt={item.caption || 'Gallery image'}
                       fill
                       className="object-cover group-hover:scale-110 transition-transform duration-700"
                       sizes="(max-width: 640px) 50vw, 33vw"
                     />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+                      <Maximize2 size={24} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
                     {item.caption && (
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity">
                         <p className="text-white text-xs font-bold leading-tight">{item.caption}</p>
                       </div>
                     )}

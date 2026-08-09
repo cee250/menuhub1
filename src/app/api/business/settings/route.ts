@@ -23,6 +23,7 @@ export async function PUT(request: NextRequest) {
     const location = formData.get('location') as string;
     const instagramUrl = formData.get('instagramUrl') as string;
     const facebookUrl = formData.get('facebookUrl') as string;
+    const tiktokUrl = formData.get('tiktokUrl') as string;
     const hasFreeWifi = formData.get('hasFreeWifi') === 'on';
     const showOnHomepage = formData.get('showOnHomepage') === 'on';
     const file = formData.get('logo') as File | null;
@@ -73,6 +74,7 @@ export async function PUT(request: NextRequest) {
         location: location || null,
         instagramUrl: instagramUrl || null,
         facebookUrl: facebookUrl || null,
+        tiktokUrl: tiktokUrl || null,
         hasFreeWifi,
         showOnHomepage,
         logoUrl,
