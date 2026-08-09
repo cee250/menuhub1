@@ -41,6 +41,19 @@ model Business {
   gallery          Gallery[]
   orders           Order[]
   staff            Staff[]
+  reviews          Review[]
+}
+
+model Review {
+  id           String   @id @default(cuid())
+  businessId   String
+  customerName String
+  rating       Int
+  comment      String
+  isApproved   Boolean  @default(false)
+  isVerified   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  business     Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 }
 
 model Staff {

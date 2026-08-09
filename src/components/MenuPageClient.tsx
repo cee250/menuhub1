@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import CustomerMenuWithTabs from '@/components/CustomerMenuWithTabs';
 import WhatsAppOrderButton from '@/components/WhatsAppOrderButton';
+import CustomerReviews from '@/components/CustomerReviews';
 
 type CartItem = {
   id: string;
@@ -67,6 +68,7 @@ export default function MenuPageClient({
           removeFromCart={removeFromCart}
           handleSubmitOrder={handleSubmitOrder}
         />
+        <CustomerReviews businessId={business.id} themeColor={business.themeColor || '#2563eb'} />
       </div>
 
       <WhatsAppOrderButton 

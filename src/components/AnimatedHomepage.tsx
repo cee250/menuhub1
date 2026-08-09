@@ -60,7 +60,7 @@ function FaqAccordion({ question, answer, isDark }: { question: string; answer: 
 }
 
 export default function AnimatedHomepage({ featured, allBusinesses, businessTypeLabels }: AnimatedHomepageProps) {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(true);
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'bg-gray-950 text-white' : 'bg-white text-gray-900'}`}>
@@ -100,6 +100,14 @@ export default function AnimatedHomepage({ featured, allBusinesses, businessType
               >
                 Login
               </Link>
+              <button
+                onClick={() => setIsDark(!isDark)}
+                className={`p-2.5 rounded-xl border transition-all ${isDark ? 'bg-gray-800 border-gray-700 text-yellow-400 hover:bg-gray-700' : 'bg-gray-100 border-gray-200 text-gray-700 hover:bg-gray-200'}`}
+                title="Toggle Theme"
+              >
+                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+
               <Link 
                 href="/register" 
                 className="text-xs sm:text-sm font-bold text-white bg-[#2563eb] hover:bg-blue-700 px-5 py-2.5 rounded-xl transition-all shadow-md shadow-blue-500/20 hover:shadow-lg hover:-translate-y-0.5"

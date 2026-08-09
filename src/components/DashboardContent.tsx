@@ -10,6 +10,7 @@ import ChangePassword from '@/components/ChangePassword';
 import GalleryManager from '@/components/GalleryManager';
 import AnalyticsPanel from '@/components/AnalyticsPanel';
 import StaffManager from '@/components/StaffManager';
+import ReviewsManagement from '@/components/ReviewsManagement';
 import { ChevronUp, ChevronDown, Utensils, GlassWater, Star, Edit2, ToggleLeft, ToggleRight, LogOut, ExternalLink, MapPin, Wifi } from 'lucide-react';
 
 export default function DashboardContent({ business }: { business: any }) {
@@ -274,6 +275,11 @@ export default function DashboardContent({ business }: { business: any }) {
         {/* Staff Manager Section */}
         <div className="mt-8">
           <StaffManager businessSlug={business.slug} />
+        </div>
+
+        {/* Reviews Management */}
+        <div className="mt-8">
+          <ReviewsManagement businessId={business.id} themeColor={business.themeColor || '#2563eb'} />
         </div>
 
         {/* Gallery Manager */}
