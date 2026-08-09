@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get('image') as File;
     const caption = formData.get('caption') as string;
-    const category = (formData.get('category') as string) || 'other'; // 🚀 GET CATEGORY
+    const category = (formData.get('category') as string) || 'events'; // 🚀 GET CATEGORY
     const businessSlug = formData.get('businessSlug') as string;
 
     if (!file || !businessSlug) {
@@ -44,5 +44,36 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('Gallery upload error:', error);
     return NextResponse.json({ error: error.message || 'Failed to upload image' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user?.slug) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { id, businessSlug } = await request.json();
+
+    if (!id || !businessSlug) {
+      return NextResponse.json({ error: 'Image ID and business slug are required' }, { status: 400 });
+    }
+
+    // Verify business ownership
+    if ((session.user as any).slug !== businessSlug) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    // Delete from Database
+    await prisma.gallery.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ message: 'Image deleted successfully' }, { status: 200 });
+
+  } catch (error: any) {
+    console.error('Gallery delete error:', error);
+    return NextResponse.json({ error: error.message || 'Failed to delete image' }, { status: 500 });
   }
 }

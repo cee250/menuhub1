@@ -26,7 +26,7 @@ const translations = {
     food: 'Food',
     drinks: 'Drinks',
     ambiance: 'Ambiance',
-    other: 'Other',
+    other: 'Events',
     specialTag: 'SPECIAL',
     callWaiter: 'Order / Call Waiter',
     addToCart: 'Add to Order',
@@ -42,7 +42,7 @@ const translations = {
     food: 'Nourriture',
     drinks: 'Boissons',
     ambiance: 'Ambiance',
-    other: 'Autre',
+    other: 'Événements',
     specialTag: 'SPÉCIAL',
     callWaiter: 'Commander / Appeler Serveur',
     addToCart: 'Ajouter à la Commande',
@@ -58,7 +58,7 @@ const translations = {
     food: 'Ibiribwa',
     drinks: 'Ibinyobwa',
     ambiance: 'Ahantu',
-    other: 'Ibindi',
+    other: 'Ibirori',
     specialTag: 'IBIDASANZWE',
     callWaiter: 'Gutumiza / Hamagara Seriveri',
     addToCart: 'Ongeraho kuri Order',
@@ -96,7 +96,7 @@ export default function CustomerMenuWithTabs({
 
   const t = translations[lang];
   const gallery = business.gallery || [];
-  const galleryCategories = ['all', 'food', 'drinks', 'ambiance', 'other'];
+  const galleryCategories = ['all', 'food', 'drinks', 'ambiance', 'events'];
   const filteredGallery = activeFilter === 'all' ? gallery : gallery.filter((g: any) => g.category === activeFilter);
 
   // Filter items based on active tab
@@ -396,7 +396,7 @@ export default function CustomerMenuWithTabs({
                     }`}
                     style={activeFilter === cat ? { backgroundColor: business.themeColor || '#2563eb' } : {}}
                   >
-                    {cat === 'all' ? 'All' : cat}
+                    {cat === 'all' ? 'All' : cat === 'events' ? t.other : cat}
                   </button>
                 ))}
               </div>
