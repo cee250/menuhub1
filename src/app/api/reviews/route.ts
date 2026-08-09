@@ -21,9 +21,12 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, review });
-  } catch (error) {
+    } catch (error: any) {
     console.error('Error creating review:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Internal server error', 
+      details: error.message || 'Unknown error' 
+    }, { status: 500 });
   }
 }
 
@@ -66,9 +69,12 @@ export async function GET(req: Request) {
         breakdown,
       },
     });
-  } catch (error) {
+    } catch (error: any) {
     console.error('Error fetching reviews:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Internal server error', 
+      details: error.message || 'Unknown error' 
+    }, { status: 500 });
   }
 }
 
@@ -91,8 +97,11 @@ export async function PATCH(req: Request) {
     });
 
     return NextResponse.json({ success: true, review: updated });
-  } catch (error) {
+    } catch (error: any) {
     console.error('Error updating review:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Internal server error', 
+      details: error.message || 'Unknown error' 
+    }, { status: 500 });
   }
 }

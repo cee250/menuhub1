@@ -555,16 +555,7 @@ export default function AnimatedHomepage({ featured, allBusinesses, businessType
         <MessageCircle size={28} strokeWidth={1.5} fill="currentColor" className="fill-white/20" />
       </a>
 
-      {/* =========================================
-          THEME CHANGER BUTTON
-      ========================================= */}
-      <button
-        onClick={() => setIsDark(!isDark)}
-        className={`fixed bottom-6 left-6 z-50 p-4 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 flex items-center justify-center ${isDark ? 'bg-yellow-500 hover:bg-yellow-400 text-gray-900' : 'bg-gray-800 hover:bg-gray-700 text-white'}`}
-        aria-label="Toggle Theme"
-      >
-        {isDark ? <Sun size={24} /> : <Moon size={24} />}
-      </button>
+
 
       {/* =========================================
           CUSTOM ANIMATION STYLES
