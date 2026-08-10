@@ -129,7 +129,7 @@ export default function LoginPage() {
 
           {loginType === 'owner' && (
             <div className="text-center mt-6">
-              <Link href="/forgot-password" **bold** className="text-xs text-blue-600 font-black uppercase tracking-widest hover:text-blue-700 transition-colors">
+              <Link href="/forgot-password"  className="text-xs text-blue-600 font-black uppercase tracking-widest hover:text-blue-700 transition-colors">
                 Forgot password?
               </Link>
             </div>
