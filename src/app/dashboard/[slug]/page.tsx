@@ -16,14 +16,17 @@ export default async function DashboardPage({ params }: { params: Promise<{ slug
     redirect('/login');
   }
 
-  const userSlug = (session.user as { slug?: string }).slug;
+  const user = session.user as any;
+  const userSlug = user.slug;
+  const userRole = user.role;
+  const businessSlug = userRole === 'manager' ? user.businessSlug : userSlug;
 
   // 2. Case-insensitive slug verification to prevent redirect loops
-  if (!userSlug || userSlug.toLowerCase() !== slug.toLowerCase()) {
-    console.log(`Slug mismatch: session=${userSlug}, url=${slug}`);
-    // If they are logged in but on the wrong slug, send them to THEIR dashboard
-    if (userSlug) {
-      redirect(`/dashboard/${userSlug.toLowerCase()}`);
+  // For managers, we check if they are trying to access the correct business dashboard
+  if (!businessSlug || businessSlug.toLowerCase() !== slug.toLowerCase()) {
+    console.log(`Slug mismatch: user=${businessSlug}, url=${slug}`);
+    if (businessSlug) {
+      redirect(`/dashboard/${businessSlug.toLowerCase()}`);
     }
     redirect('/login');
   }
@@ -50,7 +53,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ slug
     }
 
     const { password: _password, ...dashboardBusiness } = business;
-    return <DashboardContent business={dashboardBusiness} />;
+    return <DashboardContent business={dashboardBusiness} user={user} />;
   } catch (error) {
     console.error('Dashboard Data Fetch Error:', error);
     // Return a basic error UI instead of crashing the whole function

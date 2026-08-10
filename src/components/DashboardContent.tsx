@@ -11,15 +11,16 @@ import GalleryManager from '@/components/GalleryManager';
 import AnalyticsPanel from '@/components/AnalyticsPanel';
 import StaffManager from '@/components/StaffManager';
 import ReviewsManagement from '@/components/ReviewsManagement';
+import ManagerManager from '@/components/ManagerManager';
 import { 
   ChevronUp, ChevronDown, Utensils, Star, Edit2, 
   ToggleLeft, ToggleRight, LogOut, ExternalLink, 
   MapPin, Wifi, LayoutDashboard, Users2, 
   MessageSquare, Image as ImageIcon, BarChart3, 
-  Settings, Lock, PlusCircle, QrCode 
+  Settings, Lock, PlusCircle, QrCode, ShieldAlert
 } from 'lucide-react';
 
-export default function DashboardContent({ business }: { business: any }) {
+export default function DashboardContent({ business, user }: { business: any, user: any }) {
   const [editingItem, setEditingItem] = useState<any>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [isSorting, setIsSorting] = useState(false);
@@ -94,6 +95,8 @@ export default function DashboardContent({ business }: { business: any }) {
     other: 'Other',
   };
 
+  const isOwner = user?.role === 'owner';
+
   const navItems = [
     { id: 'menu', label: 'Menu Items', icon: LayoutDashboard },
     { id: 'add', label: 'Add New', icon: PlusCircle },
@@ -102,8 +105,11 @@ export default function DashboardContent({ business }: { business: any }) {
     { id: 'reviews', label: 'Reviews', icon: MessageSquare },
     { id: 'gallery', label: 'Gallery', icon: ImageIcon },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-    { id: 'settings', label: 'Settings', icon: Settings },
-    { id: 'password', label: 'Security', icon: Lock },
+    ...(isOwner ? [
+      { id: 'managers', label: 'Managers', icon: ShieldAlert },
+      { id: 'settings', label: 'Settings', icon: Settings },
+      { id: 'password', label: 'Security', icon: Lock }
+    ] : []),
   ];
 
   return (
@@ -321,11 +327,15 @@ export default function DashboardContent({ business }: { business: any }) {
               <AnalyticsPanel businessSlug={business.slug} />
             )}
 
-            {activeTab === 'settings' && (
+            {activeTab === 'managers' && isOwner && (
+              <ManagerManager businessId={business.id} themeColor={business.themeColor || '#2563eb'} />
+            )}
+
+            {activeTab === 'settings' && isOwner && (
               <BusinessSettings business={business} />
             )}
 
-            {activeTab === 'password' && (
+            {activeTab === 'password' && isOwner && (
               <ChangePassword slug={business.slug} />
             )}
           </div>

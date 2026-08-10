@@ -42,6 +42,7 @@ model Business {
   orders           Order[]
   staff            Staff[]
   reviews          Review[]
+  managers         Manager[]
 }
 
 model Review {
@@ -64,6 +65,16 @@ model Staff {
   businessId String
   orders     Order[]
   business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+model Manager {
+  id         String   @id @default(cuid())
+  name       String
+  slug       String   @unique
+  password   String
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
 }
 
 model Category {
