@@ -7,10 +7,9 @@ export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  
-  // 1. Session Check
+
   const session = await auth();
-  
+
   if (!session) {
     console.log('No session found, redirecting to login');
     redirect('/login');
@@ -21,56 +20,48 @@ export default async function DashboardPage({ params }: { params: Promise<{ slug
   const userRole = user.role;
   const businessSlug = userRole === 'manager' ? user.businessSlug : userSlug;
 
-  // 2. Case-insensitive slug verification to prevent redirect loops
-  // For managers, we check if they are trying to access the correct business dashboard
   if (!businessSlug || businessSlug.toLowerCase() !== slug.toLowerCase()) {
     console.log(`Slug mismatch: user=${businessSlug}, url=${slug}`);
-    if (businessSlug) {
-      redirect(`/dashboard/${businessSlug.toLowerCase()}`);
-    }
+    if (businessSlug) redirect(`/dashboard/${businessSlug.toLowerCase()}`);
     redirect('/login');
   }
 
-  // 3. Fetch business data
+  let business: any = null;
+  let dashboardError = false;
+
   try {
-    const business = await prisma.business.findUnique({
+    business = await prisma.business.findUnique({
       where: { slug: slug.toLowerCase() },
       include: {
         categories: {
-          include: { 
-            items: { orderBy: [ { sortOrder: 'asc' }, { name: 'asc' } ] } 
+          include: {
+            items: { orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }] },
           },
           orderBy: { sortOrder: 'asc' },
         },
-        gallery: { 
-          orderBy: { createdAt: 'desc' } 
-        },
+        gallery: { orderBy: { createdAt: 'desc' } },
       },
     });
-
-    if (!business) {
-      notFound();
-    }
-
-    const { password: _password, ...dashboardBusiness } = business;
-    return <DashboardContent business={dashboardBusiness} user={user} />;
   } catch (error) {
     console.error('Dashboard Data Fetch Error:', error);
-    // Return a basic error UI instead of crashing the whole function
+    dashboardError = true;
+  }
+
+  if (dashboardError || !business) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
         <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center border border-red-100">
-          <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">⚠️</div>
+          <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">!</div>
           <h1 className="text-xl font-black text-gray-900 mb-2">Dashboard Error</h1>
           <p className="text-gray-500 text-sm mb-6">We couldn't load your dashboard data. This might be a temporary connection issue.</p>
-          <a 
-            href=""
-            className="block w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all text-center"
-          >
+          <a href={`/dashboard/${slug}`} className="block w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all text-center">
             Try Again
           </a>
         </div>
       </div>
     );
   }
+
+  const { password: _password, ...dashboardBusiness } = business;
+  return <DashboardContent business={dashboardBusiness} user={user} />;
 }

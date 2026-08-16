@@ -12,12 +12,13 @@ import AnalyticsPanel from '@/components/AnalyticsPanel';
 import StaffManager from '@/components/StaffManager';
 import ReviewsManagement from '@/components/ReviewsManagement';
 import ManagerManager from '@/components/ManagerManager';
-import { 
-  ChevronUp, ChevronDown, Utensils, Star, Edit2, 
-  ToggleLeft, ToggleRight, LogOut, ExternalLink, 
-  MapPin, Wifi, LayoutDashboard, Users2, 
-  MessageSquare, Image as ImageIcon, BarChart3, 
-  Settings, Lock, PlusCircle, QrCode, ShieldAlert
+import InventoryManager from '@/components/InventoryManager';
+import {
+  ChevronUp, ChevronDown, Utensils, Star, Edit2,
+  ToggleLeft, ToggleRight, LogOut, ExternalLink,
+  MapPin, Wifi, LayoutDashboard, Users2,
+  MessageSquare, Image as ImageIcon, BarChart3,
+  Settings, Lock, PlusCircle, QrCode, ShieldAlert, Package
 } from 'lucide-react';
 
 export default function DashboardContent({ business, user }: { business: any, user: any }) {
@@ -44,14 +45,14 @@ export default function DashboardContent({ business, user }: { business: any, us
 
   async function handleSort(type: 'categories' | 'items', list: any[], index: number, direction: 'up' | 'down') {
     if (isSorting) return;
-    
+
     const newList = [...list];
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    
+
     if (targetIndex < 0 || targetIndex >= newList.length) return;
-    
+
     [newList[index], newList[targetIndex]] = [newList[targetIndex], newList[index]];
-    
+
     const updatedItems = newList.map((item, i) => ({
       id: item.id,
       sortOrder: i
@@ -68,7 +69,7 @@ export default function DashboardContent({ business, user }: { business: any, us
           businessSlug: business.slug
         }),
       });
-      
+
       if (res.ok) {
         window.location.reload();
       } else {
@@ -105,6 +106,7 @@ export default function DashboardContent({ business, user }: { business: any, us
     { id: 'reviews', label: 'Reviews', icon: MessageSquare },
     { id: 'gallery', label: 'Gallery', icon: ImageIcon },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { id: 'inventory', label: 'Inventory', icon: Package },
     ...(isOwner ? [
       { id: 'managers', label: 'Managers', icon: ShieldAlert },
       { id: 'settings', label: 'Settings', icon: Settings },
@@ -120,7 +122,7 @@ export default function DashboardContent({ business, user }: { business: any, us
           {business.logoUrl ? (
             <img src={business.logoUrl} alt={business.name} className="w-8 h-8 object-contain rounded-lg" />
           ) : (
-            <div 
+            <div
               className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-sm"
               style={{ backgroundColor: business.themeColor || '#2563eb' }}
             >
@@ -136,8 +138,8 @@ export default function DashboardContent({ business, user }: { business: any, us
               key={item.id}
               onClick={() => setActiveTab(item.id)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
-                activeTab === item.id 
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' 
+                activeTab === item.id
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
                   : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
@@ -148,16 +150,16 @@ export default function DashboardContent({ business, user }: { business: any, us
         </nav>
 
         <div className="p-4 border-t border-gray-100 space-y-2">
-          <a 
-            href={'/menu/' + business.slug} 
-            target="_blank" 
+          <a
+            href={'/menu/' + business.slug}
+            target="_blank"
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 transition-all"
           >
             <ExternalLink size={18} />
             Live Menu
           </a>
-          <button 
-            onClick={handleLogout} 
+          <button
+            onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-red-600 hover:bg-red-50 transition-all"
           >
             <LogOut size={18} />
@@ -169,7 +171,7 @@ export default function DashboardContent({ business, user }: { business: any, us
       {/* Main Content Area */}
       <main className="flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto">
         <div className="max-w-5xl mx-auto">
-          
+
           {/* Mobile Header (Only visible on small screens) */}
           <div className="lg:hidden flex items-center justify-between mb-8 bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
             <h1 className="text-xl font-black text-gray-900">{business.name}</h1>
@@ -192,7 +194,7 @@ export default function DashboardContent({ business, user }: { business: any, us
                   </h2>
                   {isSorting && <span className="text-xs font-black text-blue-600 animate-pulse uppercase tracking-widest">Updating Order...</span>}
                 </div>
-                
+
                 {(!business.categories || business.categories.length === 0) ? (
                   <div className="text-center py-20">
                     <p className="text-gray-400 font-bold">No categories yet. Add your first item to start!</p>
@@ -212,14 +214,14 @@ export default function DashboardContent({ business, user }: { business: any, us
                             </h3>
                           </div>
                           <div className="flex items-center gap-1 opacity-0 group-hover/cat:opacity-100 transition-opacity">
-                            <button 
+                            <button
                               onClick={() => handleSort('categories', business.categories, catIndex, 'up')}
                               disabled={catIndex === 0 || isSorting}
                               className="p-1.5 hover:bg-white rounded-lg text-gray-400 hover:text-blue-600 disabled:opacity-20 transition-all"
                             >
                               <ChevronUp size={20} />
                             </button>
-                            <button 
+                            <button
                               onClick={() => handleSort('categories', business.categories, catIndex, 'down')}
                               disabled={catIndex === business.categories.length - 1 || isSorting}
                               className="p-1.5 hover:bg-white rounded-lg text-gray-400 hover:text-blue-600 disabled:opacity-20 transition-all"
@@ -237,14 +239,14 @@ export default function DashboardContent({ business, user }: { business: any, us
                               <li key={item.id} className="group/item flex justify-between items-center bg-white p-3 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
                                 <div className="flex items-center gap-4">
                                   <div className="flex flex-col items-center gap-0.5 opacity-0 group-hover/item:opacity-100 transition-opacity">
-                                    <button 
+                                    <button
                                       onClick={() => handleSort('items', cat.items, itemIndex, 'up')}
                                       disabled={itemIndex === 0 || isSorting}
                                       className="p-0.5 hover:bg-blue-50 rounded text-gray-300 hover:text-blue-600 disabled:opacity-10"
                                     >
                                       <ChevronUp size={14} />
                                     </button>
-                                    <button 
+                                    <button
                                       onClick={() => handleSort('items', cat.items, itemIndex, 'down')}
                                       disabled={itemIndex === cat.items.length - 1 || isSorting}
                                       className="p-0.5 hover:bg-blue-50 rounded text-gray-300 hover:text-blue-600 disabled:opacity-10"
@@ -276,8 +278,8 @@ export default function DashboardContent({ business, user }: { business: any, us
                                   >
                                     {item.isAvailable ? <ToggleRight size={20} /> : <ToggleLeft size={20} />}
                                   </button>
-                                  <button 
-                                    onClick={() => setEditingItem(item)} 
+                                  <button
+                                    onClick={() => setEditingItem(item)}
                                     className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all"
                                     title="Edit Item"
                                   >
@@ -325,6 +327,10 @@ export default function DashboardContent({ business, user }: { business: any, us
 
             {activeTab === 'analytics' && (
               <AnalyticsPanel businessSlug={business.slug} />
+            )}
+
+            {activeTab === 'inventory' && (
+              <InventoryManager business={business} userRole={user?.role === 'manager' ? 'manager' : 'owner'} themeColor={business.themeColor || '#2563eb'} />
             )}
 
             {activeTab === 'managers' && isOwner && (

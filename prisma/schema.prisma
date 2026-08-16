@@ -15,34 +15,40 @@ model SuperAdminSettings {
 }
 
 model Business {
-  id               String      @id @default(cuid())
-  name             String
-  slug             String      @unique
-  tier             String      @default("ESSENTIALS")
-  whatsappNumber   String
-  logoUrl          String?
-  createdAt        DateTime    @default(now())
-  password         String?
-  themeColor       String?     @default("#2563eb")
-  businessType     String?
-  facebookUrl      String?
-  hasFreeWifi      Boolean     @default(false)
-  instagramUrl     String?
-  tiktokUrl        String?
-  location         String?
-  waiterCallNumber String?
-  showOnHomepage   Boolean     @default(false)
-  status           String      @default("PENDING")
-  activatedAt      DateTime?
-  email            String?
-  analytics        Analytics[]
-  auditLogs        AuditLog[]
-  categories       Category[]
-  gallery          Gallery[]
-  orders           Order[]
-  staff            Staff[]
-  reviews          Review[]
-  managers         Manager[]
+  id                    String                 @id @default(cuid())
+  name                  String
+  slug                  String                 @unique
+  tier                  String                 @default("ESSENTIALS")
+  whatsappNumber        String
+  logoUrl               String?
+  createdAt             DateTime               @default(now())
+  password              String?
+  themeColor            String?                @default("#2563eb")
+  businessType          String?
+  facebookUrl           String?
+  hasFreeWifi           Boolean                @default(false)
+  instagramUrl          String?
+  tiktokUrl             String?
+  location              String?
+  waiterCallNumber      String?
+  showOnHomepage        Boolean                @default(false)
+  status                String                 @default("PENDING")
+  activatedAt           DateTime?
+  email                 String?
+  analytics             Analytics[]
+  auditLogs             AuditLog[]
+  categories            Category[]
+  gallery               Gallery[]
+  orders                Order[]
+  staff                 Staff[]
+  reviews               Review[]
+  managers              Manager[]
+  inventoryItems        InventoryItem[]
+  inventoryMovements    InventoryMovement[]
+  inventoryReservations InventoryReservation[]
+  inventorySettings     InventorySettings?
+  inventorySuppliers    InventorySupplier[]
+  inventoryCounts       InventoryCount[]
 }
 
 model Review {
@@ -87,18 +93,158 @@ model Category {
 }
 
 model MenuItem {
-  id           String    @id @default(cuid())
-  name         String
-  description  String?
-  price        Float
-  imageUrl     String?
-  isAvailable  Boolean   @default(true)
-  categoryId   String?
-  isFeatured   Boolean   @default(false)
-  mainCategory String    @default("Foods")
-  subCategory  String?
-  sortOrder    Int       @default(0)
-  category     Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  id            String         @id @default(cuid())
+  name          String
+  description   String?
+  price         Float
+  imageUrl      String?
+  isAvailable   Boolean        @default(true)
+  categoryId    String?
+  isFeatured    Boolean        @default(false)
+  mainCategory  String         @default("Foods")
+  subCategory   String?
+  sortOrder     Int            @default(0)
+  category      Category?      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  inventoryItem InventoryItem?
+}
+
+model InventoryItem {
+  id                String                 @id @default(cuid())
+  businessId        String
+  menuItemId        String?                @unique
+  supplierId        String?
+  sku               String?
+  name              String
+  unit              String                 @default("piece")
+  quantityOnHand    Float                  @default(0)
+  reservedQuantity  Float                  @default(0)
+  lowStockThreshold Float                  @default(0)
+  reorderQuantity   Float                  @default(0)
+  unitCost          Float                  @default(0)
+  supplierName      String?
+  trackStock        Boolean                @default(true)
+  lastCountedAt     DateTime?
+  isActive          Boolean                @default(true)
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  business          Business               @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  menuItem          MenuItem?              @relation(fields: [menuItemId], references: [id], onDelete: SetNull)
+  supplier          InventorySupplier?     @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  movements         InventoryMovement[]
+  reservations      InventoryReservation[]
+  countLines        InventoryCountLine[]
+
+  @@index([businessId])
+  @@index([businessId, isActive])
+  @@index([businessId, supplierId])
+  @@index([businessId, sku])
+}
+
+model InventorySettings {
+  id                       String   @id @default(cuid())
+  businessId               String   @unique
+  inventoryMode            String   @default("SIMPLE")
+  reservationMode          String   @default("ON_ORDER")
+  reservationExpiryMinutes Int      @default(30)
+  autoHideOutOfStock       Boolean  @default(true)
+  lowStockNotifications    Boolean  @default(true)
+  defaultUnit              String   @default("piece")
+  managerCanRestock        Boolean  @default(true)
+  managerCanAdjust         Boolean  @default(true)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+  business                 Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+model InventorySupplier {
+  id         String          @id @default(cuid())
+  businessId String
+  name       String
+  phone      String?
+  email      String?
+  notes      String?
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  business   Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  items      InventoryItem[]
+
+  @@index([businessId, name])
+}
+
+model InventoryCount {
+  id            String               @id @default(cuid())
+  businessId    String
+  status        String               @default("DRAFT")
+  note          String?
+  createdById   String?
+  completedById String?
+  startedAt     DateTime             @default(now())
+  completedAt   DateTime?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  business      Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  lines         InventoryCountLine[]
+
+  @@index([businessId, status])
+  @@index([businessId, createdAt])
+}
+
+model InventoryCountLine {
+  id               String         @id @default(cuid())
+  countId          String
+  inventoryItemId  String
+  expectedQuantity Float
+  countedQuantity  Float?
+  variance         Float?
+  reason           String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  count            InventoryCount @relation(fields: [countId], references: [id], onDelete: Cascade)
+  inventoryItem    InventoryItem  @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+
+  @@unique([countId, inventoryItemId])
+  @@index([inventoryItemId])
+}
+
+model InventoryMovement {
+  id              String        @id @default(cuid())
+  businessId      String
+  inventoryItemId String
+  type            String
+  quantity        Float
+  quantityBefore  Float
+  quantityAfter   Float
+  reservedBefore  Float         @default(0)
+  reservedAfter   Float         @default(0)
+  reason          String?
+  referenceId     String?
+  actorId         String?
+  actorRole       String?
+  createdAt       DateTime      @default(now())
+  business        Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, createdAt])
+  @@index([inventoryItemId, createdAt])
+}
+
+model InventoryReservation {
+  id              String        @id @default(cuid())
+  businessId      String
+  inventoryItemId String
+  orderId         String?
+  quantity        Float
+  status          String        @default("RESERVED")
+  createdAt       DateTime      @default(now())
+  releasedAt      DateTime?
+  completedAt     DateTime?
+  business        Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+  order           Order?        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([orderId, inventoryItemId])
+  @@index([businessId, status])
+  @@index([orderId])
 }
 
 model Gallery {
@@ -122,17 +268,22 @@ model Analytics {
 }
 
 model Order {
-  id           String   @id @default(cuid())
-  businessId   String
-  tableNumber  String?
-  customerName String?
-  items        Json
-  totalAmount  Float
-  status       String   @default("PENDING")
-  createdAt    DateTime @default(now())
-  staffId      String?
-  business     Business @relation(fields: [businessId], references: [id])
-  staff        Staff?   @relation(fields: [staffId], references: [id])
+  id                    String                 @id @default(cuid())
+  businessId            String
+  tableNumber           String?
+  customerName          String?
+  items                 Json
+  totalAmount           Float
+  status                String                 @default("PENDING")
+  paymentStatus         String                 @default("UNPAID")
+  source                String                 @default("CUSTOMER")
+  clientReference       String?                @unique
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  staffId               String?
+  business              Business               @relation(fields: [businessId], references: [id])
+  staff                 Staff?                 @relation(fields: [staffId], references: [id])
+  inventoryReservations InventoryReservation[]
 }
 
 model AuditLog {

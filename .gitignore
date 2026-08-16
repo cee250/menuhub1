@@ -6,4 +6,3 @@ public/uploads/
 .env.local
 prisma.config.ts
 .DS_Store
-.env

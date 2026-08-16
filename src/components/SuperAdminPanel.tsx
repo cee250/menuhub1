@@ -232,7 +232,7 @@ export default function SuperAdminPanel() {
     const now = new Date();
     
     // Calculate the next renewal date (same day next month)
-    let nextRenewal = new Date(start);
+    const nextRenewal = new Date(start);
     nextRenewal.setMonth(nextRenewal.getMonth() + 1);
     
     // If nextRenewal is already passed, increment month until it's in the future

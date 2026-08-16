@@ -4,10 +4,10 @@ import { useState } from 'react';
 import Image from 'next/image';
 import OrderCart from '@/components/OrderCart';
 import CustomerReviews from '@/components/CustomerReviews';
-import { 
-  Languages, Info, Image as LucideImage, 
-  UtensilsCrossed, GlassWater, Star, 
-  ShoppingBag, Check, X, Maximize2, 
+import {
+  Languages, Info, Image as LucideImage,
+  UtensilsCrossed, GlassWater, Star,
+  ShoppingBag, Check, X, Maximize2,
   ChevronDown, ChevronUp, MessageSquare
 } from 'lucide-react';
 
@@ -81,9 +81,9 @@ const translations = {
   }
 };
 
-export default function CustomerMenuWithTabs({ 
-  business, 
-  featuredItems, 
+export default function CustomerMenuWithTabs({
+  business,
+  featuredItems,
   activeWaiters = [],
   cartItems,
   isCartOpen,
@@ -92,9 +92,9 @@ export default function CustomerMenuWithTabs({
   updateQuantity,
   removeFromCart,
   handleSubmitOrder
-}: { 
-  business: any; 
-  featuredItems: any[]; 
+}: {
+  business: any;
+  featuredItems: any[];
   activeWaiters?: { id: string; name: string; phone: string }[];
   cartItems: CartItem[];
   isCartOpen: boolean;
@@ -124,7 +124,7 @@ export default function CustomerMenuWithTabs({
 
   // Filter items based on active tab
   const isDrinkCategory = (cat: string) => ['Beverages', 'Wine', 'Champagne', 'Drinks'].includes(cat);
-  
+
   const currentFeaturedItems = featuredItems.filter(item => {
     if (activeTab === 'food') return item.mainCategory === 'Foods';
     if (activeTab === 'drinks') return isDrinkCategory(item.mainCategory);
@@ -159,20 +159,20 @@ export default function CustomerMenuWithTabs({
 
       {/* Lightbox Modal */}
       {selectedImage && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/95 z-[10000] flex items-center justify-center p-4 animate-in fade-in duration-300"
           onClick={() => setSelectedImage(null)}
         >
-          <button 
+          <button
             className="absolute top-6 right-6 text-white/70 hover:text-white transition-colors"
             onClick={() => setSelectedImage(null)}
           >
             <X size={32} />
           </button>
           <div className="relative w-full max-w-5xl aspect-auto max-h-[90vh]">
-            <img 
-              src={selectedImage} 
-              alt="Full view" 
+            <img
+              src={selectedImage}
+              alt="Full view"
               className="w-full h-full object-contain rounded-lg shadow-2xl"
             />
           </div>
@@ -187,8 +187,8 @@ export default function CustomerMenuWithTabs({
               key={l}
               onClick={() => setLang(l)}
               className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
-                lang === l 
-                ? 'bg-blue-600 text-white shadow-sm' 
+                lang === l
+                ? 'bg-blue-600 text-white shadow-sm'
                 : 'text-gray-500 hover:bg-gray-100'
               }`}
             >
@@ -274,9 +274,9 @@ export default function CustomerMenuWithTabs({
                       <div className="flex flex-col sm:flex-row gap-5 p-5">
                         {item.imageUrl && (
                           <div className="relative w-full sm:w-32 h-48 sm:h-32 rounded-2xl overflow-hidden shadow-inner shrink-0">
-                            <Image 
-                              src={item.imageUrl} 
-                              alt={item.name} 
+                            <Image
+                              src={item.imageUrl}
+                              alt={item.name}
                               fill
                               className="object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
                               sizes="(max-width: 640px) 100vw, 128px"
@@ -308,8 +308,8 @@ export default function CustomerMenuWithTabs({
                             <button
                               onClick={() => addToCart(item)}
                               className={`px-4 py-2 rounded-xl font-black text-sm transition-all flex items-center gap-2 ${
-                                added 
-                                ? 'bg-green-50 text-green-600 border-2 border-green-200' 
+                                added
+                                ? 'bg-green-50 text-green-600 border-2 border-green-200'
                                 : 'text-white shadow-md hover:scale-105 active:scale-95'
                               }`}
                               style={!added ? { backgroundColor: business.themeColor || '#2563eb' } : {}}
@@ -378,8 +378,8 @@ export default function CustomerMenuWithTabs({
                                 <button
                                   onClick={() => addToCart(item)}
                                   className={`px-3 py-2 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 ${
-                                    added 
-                                    ? 'bg-green-50 text-green-600 border border-green-100' 
+                                    added
+                                    ? 'bg-green-50 text-green-600 border border-green-100'
                                     : 'text-white shadow-sm hover:scale-105 active:scale-95'
                                   }`}
                                   style={!added ? { backgroundColor: business.themeColor || '#2563eb' } : {}}
@@ -429,14 +429,14 @@ export default function CustomerMenuWithTabs({
           ) : (
             <div className="columns-2 sm:columns-3 gap-4 space-y-4">
               {filteredGallery.map((img: any) => (
-                <div 
-                  key={img.id} 
+                <div
+                  key={img.id}
                   className="relative group rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer break-inside-avoid"
                   onClick={() => setSelectedImage(img.imageUrl)}
                 >
-                  <img 
-                    src={img.imageUrl} 
-                    alt={img.caption || 'Gallery'} 
+                  <img
+                    src={img.imageUrl}
+                    alt={img.caption || 'Gallery'}
                     className="w-full h-auto object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">

@@ -40,6 +40,7 @@ export default function OrderCart({
   const [selectedWaiter, setSelectedWaiter] = useState<string>('');
   const [locationInfo, setLocationInfo] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   if (!isOpen) return null;
 
@@ -48,7 +49,35 @@ export default function OrderCart({
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    setSubmitError('');
     try {
+      const clientReference = typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `order-${businessSlug}-${locationInfo}-${items.map((item) => `${item.id}-${item.quantity}`).join('_')}`;
+
+      // Save a structured order and reserve linked stock. Restaurants without
+      // inventory continue through the existing WhatsApp fallback below.
+      const orderResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          businessSlug,
+          tableNumber: locationInfo,
+          items,
+          clientReference,
+          source: 'CUSTOMER',
+        }),
+      });
+
+      if (!orderResponse.ok) {
+        const orderError = await orderResponse.json().catch(() => ({}));
+        if (orderResponse.status === 409 && orderError.code === 'OUT_OF_STOCK') {
+          setSubmitError(orderError.error || 'One or more selected items are out of stock.');
+          return;
+        }
+        console.warn('Structured order could not be saved; continuing with WhatsApp fallback.', orderError);
+      }
+
       // Track the order
       await fetch('/api/analytics/track', {
         method: 'POST',
@@ -217,6 +246,12 @@ export default function OrderCart({
                 </span>
               </div>
             </div>
+
+            {submitError && (
+              <div className="rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700">
+                {submitError}
+              </div>
+            )}
 
             {/* Submit Button */}
             <button
