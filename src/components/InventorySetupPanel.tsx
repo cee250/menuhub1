@@ -15,7 +15,7 @@ export default function InventorySetupPanel({
   const [status, setStatus] = useState<{ menuItems: number; inventoryItems: number; unlinkedMenuItems: number; isComplete: boolean } | null>(null);
   const [mode, setMode] = useState('SIMPLE');
   const [defaultUnit, setDefaultUnit] = useState('piece');
-  const [autoHide, setAutoHide] = useState(true);
+  const [autoHide, setAutoHide] = useState(false);
   const [working, setWorking] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -27,7 +27,7 @@ export default function InventorySetupPanel({
       if (data.settings) {
         setMode(data.settings.inventoryMode || 'SIMPLE');
         setDefaultUnit(data.settings.defaultUnit || 'piece');
-        setAutoHide(data.settings.autoHideOutOfStock !== false);
+        setAutoHide(data.settings.autoHideOutOfStock === true);
       }
     }).catch(() => undefined);
   }, []);

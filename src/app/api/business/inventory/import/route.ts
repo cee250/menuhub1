@@ -78,7 +78,9 @@ export async function POST(req: Request) {
         const lowStockThreshold = parseNumber(row.lowstockthreshold, 0);
         const reorderQuantity = parseNumber(row.reorderquantity, 0);
         const unitCost = parseNumber(row.unitcost, 0);
-        if ([quantity, lowStockThreshold, reorderQuantity, unitCost].some((value) => value < 0)) {
+        const sellingPrice = parseNumber(row.sellingprice, 0);
+        const packSize = parseNumber(row.packsize, 1);
+        if ([quantity, lowStockThreshold, reorderQuantity, unitCost, sellingPrice].some((value) => value < 0) || packSize <= 0) {
           errors.push({ row: rowNumber, error: 'quantities and cost cannot be negative' });
           continue;
         }
@@ -98,6 +100,9 @@ export async function POST(req: Request) {
         }
 
         const trackStock = !['false', '0', 'no'].includes(String(row.trackstock || 'true').toLowerCase());
+        const reorderEnabled = !['false', '0', 'no'].includes(String(row.reorderenabled || 'true').toLowerCase());
+        const isPerishable = ['true', '1', 'yes'].includes(String(row.isperishable || 'false').toLowerCase());
+        const inventoryCategory = String(row.inventorycategory || 'OTHER').trim().toUpperCase();
         const unit = row.unit || 'piece';
         const reservedQuantity = existing?.reservedQuantity || 0;
         if (existing && quantity < reservedQuantity) {
@@ -117,6 +122,11 @@ export async function POST(req: Request) {
               lowStockThreshold,
               reorderQuantity,
               unitCost,
+              sellingPrice,
+              packSize,
+              reorderEnabled,
+              isPerishable,
+              inventoryCategory,
               supplierId,
               supplierName,
               trackStock,
@@ -128,12 +138,15 @@ export async function POST(req: Request) {
                 businessId: actor.businessId,
                 inventoryItemId: existing.id,
                 type: 'IMPORT',
+                movementCategory: 'RECEIVED',
                 quantity: quantityDelta,
                 quantityBefore: existing.quantityOnHand,
                 quantityAfter: quantity,
                 reservedBefore: existing.reservedQuantity,
                 reservedAfter: existing.reservedQuantity,
                 reason: 'Inventory CSV import',
+                costValue: Math.abs(quantityDelta) * existing.unitCost,
+                periodKey: new Date().toISOString().slice(0, 7),
                 actorId: actor.actorId,
                 actorRole: actor.actorRole,
               },
@@ -152,6 +165,11 @@ export async function POST(req: Request) {
               lowStockThreshold,
               reorderQuantity,
               unitCost,
+              sellingPrice,
+              packSize,
+              reorderEnabled,
+              isPerishable,
+              inventoryCategory,
               supplierId,
               supplierName,
               trackStock,
@@ -162,10 +180,13 @@ export async function POST(req: Request) {
               businessId: actor.businessId,
               inventoryItemId: item.id,
               type: 'IMPORT',
+              movementCategory: 'RECEIVED',
               quantity,
               quantityBefore: 0,
               quantityAfter: quantity,
               reason: 'Inventory CSV import',
+              costValue: quantity * unitCost,
+              periodKey: new Date().toISOString().slice(0, 7),
               actorId: actor.actorId,
               actorRole: actor.actorRole,
             },

@@ -49,7 +49,7 @@ export async function POST(req: Request) {
           category: { businessId: actor.businessId },
           ...(selectedMenuItemIds.length ? { id: { in: selectedMenuItemIds } } : {}),
         },
-        select: { id: true, name: true },
+        select: { id: true, name: true, mainCategory: true },
         orderBy: { name: 'asc' },
       });
       const existing = await tx.inventoryItem.findMany({
@@ -67,6 +67,7 @@ export async function POST(req: Request) {
             menuItemId: menuItem.id,
             name: menuItem.name,
             unit: defaultUnit,
+            inventoryCategory: menuItem.mainCategory.toUpperCase().includes('DRINK') ? 'DRINK' : 'FOOD',
             trackStock: inventoryMode !== 'MANUAL',
           })),
           skipDuplicates: true,
@@ -80,7 +81,7 @@ export async function POST(req: Request) {
           businessId: actor.businessId,
           inventoryMode,
           defaultUnit,
-          autoHideOutOfStock: body?.autoHideOutOfStock !== false,
+          autoHideOutOfStock: body?.autoHideOutOfStock === true,
           lowStockNotifications: body?.lowStockNotifications !== false,
           managerCanRestock: body?.managerCanRestock !== false,
           managerCanAdjust: body?.managerCanAdjust !== false,
@@ -88,7 +89,7 @@ export async function POST(req: Request) {
         update: {
           inventoryMode,
           defaultUnit,
-          autoHideOutOfStock: body?.autoHideOutOfStock !== false,
+          autoHideOutOfStock: body?.autoHideOutOfStock === true,
           lowStockNotifications: body?.lowStockNotifications !== false,
           managerCanRestock: body?.managerCanRestock !== false,
           managerCanAdjust: body?.managerCanAdjust !== false,

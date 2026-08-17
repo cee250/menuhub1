@@ -49,6 +49,8 @@ model Business {
   inventorySettings     InventorySettings?
   inventorySuppliers    InventorySupplier[]
   inventoryCounts       InventoryCount[]
+  inventoryPeriods      InventoryPeriod[]
+  inventoryDailyCloses  InventoryDailyClose[]
 }
 
 model Review {
@@ -109,30 +111,36 @@ model MenuItem {
 }
 
 model InventoryItem {
-  id                String                 @id @default(cuid())
+  id                String                    @id @default(cuid())
   businessId        String
-  menuItemId        String?                @unique
+  menuItemId        String?                   @unique
   supplierId        String?
   sku               String?
   name              String
-  unit              String                 @default("piece")
-  quantityOnHand    Float                  @default(0)
-  reservedQuantity  Float                  @default(0)
-  lowStockThreshold Float                  @default(0)
-  reorderQuantity   Float                  @default(0)
-  unitCost          Float                  @default(0)
+  unit              String                    @default("piece")
+  quantityOnHand    Float                     @default(0)
+  reservedQuantity  Float                     @default(0)
+  lowStockThreshold Float                     @default(0)
+  reorderQuantity   Float                     @default(0)
+  unitCost          Float                     @default(0)
   supplierName      String?
-  trackStock        Boolean                @default(true)
+  inventoryCategory String                    @default("OTHER")
+  sellingPrice      Float                     @default(0)
+  packSize          Float                     @default(1)
+  reorderEnabled    Boolean                   @default(true)
+  isPerishable      Boolean                   @default(false)
+  trackStock        Boolean                   @default(true)
   lastCountedAt     DateTime?
-  isActive          Boolean                @default(true)
-  createdAt         DateTime               @default(now())
-  updatedAt         DateTime               @updatedAt
-  business          Business               @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  menuItem          MenuItem?              @relation(fields: [menuItemId], references: [id], onDelete: SetNull)
-  supplier          InventorySupplier?     @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  isActive          Boolean                   @default(true)
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+  business          Business                  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  menuItem          MenuItem?                 @relation(fields: [menuItemId], references: [id], onDelete: SetNull)
+  supplier          InventorySupplier?        @relation(fields: [supplierId], references: [id], onDelete: SetNull)
   movements         InventoryMovement[]
   reservations      InventoryReservation[]
   countLines        InventoryCountLine[]
+  dailyCloseLines   InventoryDailyCloseLine[]
 
   @@index([businessId])
   @@index([businessId, isActive])
@@ -146,7 +154,7 @@ model InventorySettings {
   inventoryMode            String   @default("SIMPLE")
   reservationMode          String   @default("ON_ORDER")
   reservationExpiryMinutes Int      @default(30)
-  autoHideOutOfStock       Boolean  @default(true)
+  autoHideOutOfStock       Boolean  @default(false)
   lowStockNotifications    Boolean  @default(true)
   defaultUnit              String   @default("piece")
   managerCanRestock        Boolean  @default(true)
@@ -207,25 +215,92 @@ model InventoryCountLine {
 }
 
 model InventoryMovement {
-  id              String        @id @default(cuid())
-  businessId      String
-  inventoryItemId String
-  type            String
-  quantity        Float
-  quantityBefore  Float
-  quantityAfter   Float
-  reservedBefore  Float         @default(0)
-  reservedAfter   Float         @default(0)
-  reason          String?
-  referenceId     String?
-  actorId         String?
-  actorRole       String?
-  createdAt       DateTime      @default(now())
-  business        Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+  id                String           @id @default(cuid())
+  businessId        String
+  inventoryItemId   String
+  type              String
+  quantity          Float
+  quantityBefore    Float
+  quantityAfter     Float
+  reservedBefore    Float            @default(0)
+  reservedAfter     Float            @default(0)
+  reason            String?
+  referenceId       String?
+  actorId           String?
+  actorRole         String?
+  movementCategory  String           @default("OTHER")
+  costValue         Float            @default(0)
+  revenue           Float            @default(0)
+  periodKey         String?
+  eventName         String?
+  comment           String?
+  inventoryPeriodId String?
+  createdAt         DateTime         @default(now())
+  business          Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  inventoryItem     InventoryItem    @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+  inventoryPeriod   InventoryPeriod? @relation(fields: [inventoryPeriodId], references: [id], onDelete: SetNull)
 
   @@index([businessId, createdAt])
   @@index([inventoryItemId, createdAt])
+  @@index([businessId, movementCategory, createdAt])
+  @@index([businessId, periodKey])
+}
+
+model InventoryPeriod {
+  id          String                @id @default(cuid())
+  businessId  String
+  monthKey    String
+  status      String                @default("OPEN")
+  openedAt    DateTime              @default(now())
+  closedAt    DateTime?
+  openedById  String?
+  closedById  String?
+  notes       String?
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  business    Business              @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  movements   InventoryMovement[]
+  dailyCloses InventoryDailyClose[]
+
+  @@unique([businessId, monthKey])
+  @@index([businessId, status])
+}
+
+model InventoryDailyClose {
+  id            String                    @id @default(cuid())
+  businessId    String
+  periodId      String
+  closeDate     DateTime
+  status        String                    @default("DRAFT")
+  systemValue   Float                     @default(0)
+  physicalValue Float?
+  varianceValue Float?
+  notes         String?
+  createdById   String?
+  approvedById  String?
+  createdAt     DateTime                  @default(now())
+  closedAt      DateTime?
+  business      Business                  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  period        InventoryPeriod           @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  lines         InventoryDailyCloseLine[]
+
+  @@unique([businessId, closeDate])
+  @@index([businessId, periodId])
+}
+
+model InventoryDailyCloseLine {
+  id               String              @id @default(cuid())
+  dailyCloseId     String
+  inventoryItemId  String
+  systemQuantity   Float
+  physicalQuantity Float?
+  variance         Float?
+  notes            String?
+  dailyClose       InventoryDailyClose @relation(fields: [dailyCloseId], references: [id], onDelete: Cascade)
+  inventoryItem    InventoryItem       @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+
+  @@unique([dailyCloseId, inventoryItemId])
+  @@index([inventoryItemId])
 }
 
 model InventoryReservation {

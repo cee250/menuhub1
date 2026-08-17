@@ -69,9 +69,14 @@ export async function POST(req: Request) {
     const sku = body?.sku ? String(body.sku).trim() : null;
     const menuItemId = body?.menuItemId ? String(body.menuItemId) : null;
     const trackStock = body?.trackStock !== false;
+    const inventoryCategory = String(body?.inventoryCategory || 'OTHER').trim().toUpperCase();
+    const sellingPrice = normalizeQuantity(body?.sellingPrice, 0);
+    const packSize = normalizeQuantity(body?.packSize, 1);
+    const reorderEnabled = body?.reorderEnabled !== false;
+    const isPerishable = body?.isPerishable === true;
 
     if (!name) return NextResponse.json({ error: 'Stock item name is required.' }, { status: 400 });
-    if (quantity < 0 || lowStockThreshold < 0 || unitCost < 0 || reorderQuantity < 0) return NextResponse.json({ error: 'Quantities and cost cannot be negative.' }, { status: 400 });
+    if (quantity < 0 || lowStockThreshold < 0 || unitCost < 0 || reorderQuantity < 0 || sellingPrice < 0 || packSize <= 0) return NextResponse.json({ error: 'Quantities, prices, and pack size must be valid.' }, { status: 400 });
 
     if (supplierId) {
       const supplier = await prisma.inventorySupplier.findFirst({ where: { id: supplierId, businessId: actor.businessId } });
@@ -103,6 +108,11 @@ export async function POST(req: Request) {
           reorderQuantity,
           unitCost,
           supplierName,
+          inventoryCategory,
+          sellingPrice,
+          packSize,
+          reorderEnabled,
+          isPerishable,
           trackStock,
         },
         include: {
@@ -165,7 +175,12 @@ export async function PATCH(req: Request) {
       const supplierId = body?.supplierId === undefined ? item.supplierId : (body.supplierId ? String(body.supplierId) : null);
       const sku = body?.sku === undefined ? item.sku : (body.sku ? String(body.sku).trim() : null);
       const trackStock = body?.trackStock === undefined ? item.trackStock : Boolean(body.trackStock);
-      if (!name || lowStockThreshold < 0 || unitCost < 0 || reorderQuantity < 0) return NextResponse.json({ error: 'Invalid inventory settings.' }, { status: 400 });
+      const inventoryCategory = body?.inventoryCategory === undefined ? item.inventoryCategory : String(body.inventoryCategory).trim().toUpperCase();
+      const sellingPrice = normalizeQuantity(body?.sellingPrice, item.sellingPrice);
+      const packSize = normalizeQuantity(body?.packSize, item.packSize);
+      const reorderEnabled = body?.reorderEnabled === undefined ? item.reorderEnabled : Boolean(body.reorderEnabled);
+      const isPerishable = body?.isPerishable === undefined ? item.isPerishable : Boolean(body.isPerishable);
+      if (!name || lowStockThreshold < 0 || unitCost < 0 || reorderQuantity < 0 || sellingPrice < 0 || packSize <= 0) return NextResponse.json({ error: 'Invalid inventory settings.' }, { status: 400 });
       if (supplierId) {
         const supplier = await prisma.inventorySupplier.findFirst({ where: { id: supplierId, businessId: actor.businessId } });
         if (!supplier) return NextResponse.json({ error: 'Supplier does not belong to this business.' }, { status: 400 });
@@ -173,13 +188,17 @@ export async function PATCH(req: Request) {
 
       const updated = await prisma.inventoryItem.update({
         where: { id: itemId },
-        data: { name, unit, lowStockThreshold, reorderQuantity, unitCost, supplierName, supplierId, sku, trackStock },
+        data: { name, unit, lowStockThreshold, reorderQuantity, unitCost, supplierName, supplierId, sku, inventoryCategory, sellingPrice, packSize, reorderEnabled, isPerishable, trackStock },
       });
       return NextResponse.json(updated);
     }
 
     const quantity = normalizeQuantity(body?.quantity, 0);
     if (!quantity || quantity < 0) return NextResponse.json({ error: 'A positive quantity is required.' }, { status: 400 });
+
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    const currentPeriod = await prisma.inventoryPeriod.findUnique({ where: { businessId_monthKey: { businessId: actor.businessId, monthKey: currentMonth } }, select: { status: true, monthKey: true } });
+    if (currentPeriod?.status === 'CLOSED') return NextResponse.json({ error: `The ${currentPeriod.monthKey} inventory period is closed. Reopen it before posting stock movements.` }, { status: 409 });
 
     if (action === 'restock') {
       return NextResponse.json(await prisma.$transaction(async (tx) => {
@@ -193,12 +212,15 @@ export async function PATCH(req: Request) {
             businessId: actor.businessId,
             inventoryItemId: itemId,
             type: 'RESTOCK',
+            movementCategory: 'RECEIVED',
             quantity,
             quantityBefore: current.quantityOnHand,
             quantityAfter: current.quantityOnHand + quantity,
             reservedBefore: current.reservedQuantity,
             reservedAfter: current.reservedQuantity,
             reason: String(body?.reason || 'New stock received'),
+            costValue: quantity * current.unitCost,
+            periodKey: new Date().toISOString().slice(0, 7),
             actorId: actor.actorId,
             actorRole: actor.actorRole,
           },
@@ -220,12 +242,15 @@ export async function PATCH(req: Request) {
             businessId: actor.businessId,
             inventoryItemId: itemId,
             type: 'ADJUSTMENT',
+            movementCategory: String(body?.movementCategory || 'RECONCILIATION').toUpperCase(),
             quantity: adjustment,
             quantityBefore: item.quantityOnHand,
             quantityAfter: nextQuantity,
             reservedBefore: item.reservedQuantity,
             reservedAfter: item.reservedQuantity,
             reason: String(body?.reason || 'Manual stock adjustment'),
+            costValue: Math.abs(adjustment) * item.unitCost,
+            periodKey: new Date().toISOString().slice(0, 7),
             actorId: actor.actorId,
             actorRole: actor.actorRole,
           },

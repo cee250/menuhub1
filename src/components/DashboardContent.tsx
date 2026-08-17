@@ -12,7 +12,7 @@ import AnalyticsPanel from '@/components/AnalyticsPanel';
 import StaffManager from '@/components/StaffManager';
 import ReviewsManagement from '@/components/ReviewsManagement';
 import ManagerManager from '@/components/ManagerManager';
-import InventoryManager from '@/components/InventoryManager';
+import UnifiedInventoryManager from '@/components/UnifiedInventoryManager';
 import {
   ChevronUp, ChevronDown, Utensils, Star, Edit2,
   ToggleLeft, ToggleRight, LogOut, ExternalLink,
@@ -330,7 +330,7 @@ export default function DashboardContent({ business, user }: { business: any, us
             )}
 
             {activeTab === 'inventory' && (
-              <InventoryManager business={business} userRole={user?.role === 'manager' ? 'manager' : 'owner'} themeColor={business.themeColor || '#2563eb'} />
+              <UnifiedInventoryManager business={business} userRole={user?.role === 'manager' ? 'manager' : 'owner'} themeColor={business.themeColor || '#2563eb'} />
             )}
 
             {activeTab === 'managers' && isOwner && (

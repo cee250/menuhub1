@@ -16,17 +16,22 @@ export async function GET() {
     orderBy: { name: 'asc' },
   });
 
-  const headers = ['name', 'sku', 'unit', 'quantityOnHand', 'reservedQuantity', 'availableQuantity', 'lowStockThreshold', 'reorderQuantity', 'unitCost', 'supplierName', 'menuItemId', 'menuItemName', 'trackStock'];
+  const headers = ['name', 'sku', 'unit', 'inventoryCategory', 'quantityOnHand', 'reservedQuantity', 'availableQuantity', 'lowStockThreshold', 'reorderQuantity', 'unitCost', 'sellingPrice', 'packSize', 'reorderEnabled', 'isPerishable', 'supplierName', 'menuItemId', 'menuItemName', 'trackStock'];
   const rows = items.map((item) => [
     item.name,
     item.sku,
     item.unit,
+    item.inventoryCategory,
     item.quantityOnHand,
     item.reservedQuantity,
     Math.max(0, item.quantityOnHand - item.reservedQuantity),
     item.lowStockThreshold,
     item.reorderQuantity,
     item.unitCost,
+    item.sellingPrice,
+    item.packSize,
+    item.reorderEnabled,
+    item.isPerishable,
     item.supplier?.name || item.supplierName,
     item.menuItem?.id,
     item.menuItem?.name,
