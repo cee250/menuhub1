@@ -7,6 +7,7 @@ type Item = {
   id: string;
   name: string;
   menuItemId?: string | null;
+  supplierName?: string | null;
   unit: string;
   inventoryCategory: string;
   quantityOnHand: number;
