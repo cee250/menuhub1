@@ -164,8 +164,8 @@ export async function PATCH(req: Request) {
     if (actor.actorRole === 'manager' && action === 'restock' && inventorySettings?.managerCanRestock === false) return forbidden();
     if (actor.actorRole === 'manager' && action === 'adjust' && inventorySettings?.managerCanAdjust === false) return forbidden();
 
-    if (action === 'settings') {
-      if (isInventoryManager(actor)) return forbidden();
+    if (action === 'settings' || action === 'register') {
+      if (action === 'settings' && isInventoryManager(actor)) return forbidden();
       const name = String(body?.name ?? item.name).trim();
       const unit = String(body?.unit ?? item.unit).trim() || item.unit;
       const lowStockThreshold = normalizeQuantity(body?.lowStockThreshold, item.lowStockThreshold);
