@@ -24,6 +24,7 @@ export async function GET(req: Request) {
         id: true,
         name: true,
         slug: true,
+        role: true,
         createdAt: true,
       }
     });
@@ -42,7 +43,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { name, slug, password, businessId } = await req.json();
+    const { name, slug, password, businessId, role } = await req.json();
 
     if (!name || !slug || !password || !businessId) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -53,6 +54,10 @@ export async function POST(req: Request) {
     }
 
     const cleanSlug = String(slug).toLowerCase().replace(/\s+/g, '-');
+    const accountRole = String(role || 'MANAGER').toUpperCase();
+    if (!['MANAGER', 'STOCK_MANAGER'].includes(accountRole)) {
+      return NextResponse.json({ error: 'Invalid manager account type.' }, { status: 400 });
+    }
     
     // Check if slug is taken in Business or Manager table
     const existingBusiness = await prisma.business.findUnique({ where: { slug: cleanSlug } });
@@ -69,11 +74,12 @@ export async function POST(req: Request) {
         name,
         slug: cleanSlug,
         password: hashedPassword,
+        role: accountRole,
         businessId,
       },
     });
 
-    return NextResponse.json({ success: true, manager: { id: manager.id, name: manager.name, slug: manager.slug } });
+    return NextResponse.json({ success: true, manager: { id: manager.id, name: manager.name, slug: manager.slug, role: manager.role } });
   } catch (error) {
     console.error('Error creating manager:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

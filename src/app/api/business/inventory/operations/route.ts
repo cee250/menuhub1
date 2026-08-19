@@ -107,8 +107,9 @@ export async function POST(req: Request) {
       if (!item) throw new Error('Inventory item not found.');
 
       const settings = await tx.inventorySettings.findUnique({ where: { businessId: actor.businessId } });
-      if (actor.actorRole === 'manager' && category === 'RECEIVED' && settings?.managerCanRestock === false) throw new Error('Managers are not allowed to receive stock.');
-      if (actor.actorRole === 'manager' && !incoming.has(category) && category !== 'CUSTOMER_SALE' && settings?.managerCanAdjust === false) throw new Error('Managers are not allowed to record this adjustment.');
+      const isManagerType = actor.actorRole === 'manager' || actor.actorRole === 'stock_manager';
+      if (isManagerType && category === 'RECEIVED' && settings?.managerCanRestock === false) throw new Error('Managers are not allowed to receive stock.');
+      if (isManagerType && !incoming.has(category) && category !== 'CUSTOMER_SALE' && settings?.managerCanAdjust === false) throw new Error('Managers are not allowed to record this adjustment.');
 
       const isExtraReconciliation = category === 'RECONCILIATION' && String(body?.reason || '').toLowerCase().includes('extra');
       const signedQuantity = incoming.has(category) || isExtraReconciliation ? quantity : -quantity;

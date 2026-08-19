@@ -161,8 +161,9 @@ export async function PATCH(req: Request) {
     if (!item) return NextResponse.json({ error: 'Inventory item not found.' }, { status: 404 });
 
     const inventorySettings = await prisma.inventorySettings.findUnique({ where: { businessId: actor.businessId } });
-    if (actor.actorRole === 'manager' && action === 'restock' && inventorySettings?.managerCanRestock === false) return forbidden();
-    if (actor.actorRole === 'manager' && action === 'adjust' && inventorySettings?.managerCanAdjust === false) return forbidden();
+    const isManagerType = actor.actorRole === 'manager' || actor.actorRole === 'stock_manager';
+    if (isManagerType && action === 'restock' && inventorySettings?.managerCanRestock === false) return forbidden();
+    if (isManagerType && action === 'adjust' && inventorySettings?.managerCanAdjust === false) return forbidden();
 
     if (action === 'settings' || action === 'register') {
       if (action === 'settings' && isInventoryManager(actor)) return forbidden();
@@ -271,7 +272,7 @@ export async function DELETE(req: Request) {
   try {
     const actor = await getInventoryActor();
     if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (isInventoryManager(actor)) return forbidden();
+    if (actor.actorRole === 'manager') return forbidden();
 
     const { searchParams } = new URL(req.url);
     const itemId = searchParams.get('itemId');

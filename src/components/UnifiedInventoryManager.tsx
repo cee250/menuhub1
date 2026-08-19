@@ -19,7 +19,7 @@ function today() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export default function UnifiedInventoryManager({ themeColor = '#2563eb' }: { business: any; userRole: 'owner' | 'manager'; themeColor?: string }) {
+export default function UnifiedInventoryManager({ themeColor = '#2563eb' }: { business: any; userRole: 'owner' | 'manager' | 'stock_manager'; themeColor?: string }) {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

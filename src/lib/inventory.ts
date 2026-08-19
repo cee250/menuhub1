@@ -4,7 +4,7 @@ import { auth } from '@/lib/auth/route';
 export type InventoryActor = {
   businessId: string;
   actorId: string;
-  actorRole: 'owner' | 'manager';
+  actorRole: 'owner' | 'manager' | 'stock_manager';
 };
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
@@ -21,7 +21,7 @@ export class InventoryError extends Error {
 export async function getInventoryActor(): Promise<InventoryActor | null> {
   const session = await auth();
   const user = session?.user as any;
-  if (!user || !['owner', 'manager'].includes(user.role)) return null;
+  if (!user || !['owner', 'manager', 'stock_manager'].includes(user.role)) return null;
 
   const businessId = user.role === 'owner' ? user.businessId || user.id : user.businessId;
   if (!businessId) return null;
@@ -260,5 +260,5 @@ export function inventoryErrorResponse(error: unknown) {
 }
 
 export function isInventoryManager(actor: InventoryActor) {
-  return actor.actorRole === 'manager';
+  return actor.actorRole !== 'owner';
 }

@@ -18,7 +18,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ slug
   const user = session.user as any;
   const userSlug = user.slug;
   const userRole = user.role;
-  const businessSlug = userRole === 'manager' ? user.businessSlug : userSlug;
+  const businessSlug = userRole === 'owner' ? userSlug : user.businessSlug;
 
   if (!businessSlug || businessSlug.toLowerCase() !== slug.toLowerCase()) {
     console.log(`Slug mismatch: user=${businessSlug}, url=${slug}`);
@@ -28,20 +28,23 @@ export default async function DashboardPage({ params }: { params: Promise<{ slug
 
   let business: any = null;
   let dashboardError = false;
+  const isStockManager = userRole === 'stock_manager';
 
   try {
-    business = await prisma.business.findUnique({
-      where: { slug: slug.toLowerCase() },
-      include: {
-        categories: {
+    business = isStockManager
+      ? await prisma.business.findUnique({ where: { slug: slug.toLowerCase() }, select: { id: true, name: true, slug: true, logoUrl: true, themeColor: true } })
+      : await prisma.business.findUnique({
+          where: { slug: slug.toLowerCase() },
           include: {
-            items: { orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }] },
+            categories: {
+              include: {
+                items: { orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }] },
+              },
+              orderBy: { sortOrder: 'asc' },
+            },
+            gallery: { orderBy: { createdAt: 'desc' } },
           },
-          orderBy: { sortOrder: 'asc' },
-        },
-        gallery: { orderBy: { createdAt: 'desc' } },
-      },
-    });
+        });
   } catch (error) {
     console.error('Dashboard Data Fetch Error:', error);
     dashboardError = true;

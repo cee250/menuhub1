@@ -25,7 +25,7 @@ export default function DashboardContent({ business, user }: { business: any, us
   const [editingItem, setEditingItem] = useState<any>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [isSorting, setIsSorting] = useState(false);
-  const [activeTab, setActiveTab] = useState('menu');
+  const [activeTab, setActiveTab] = useState(user?.role === 'stock_manager' ? 'inventory' : 'menu');
 
   async function handleToggleAvailability(item: any) {
     setTogglingId(item.id);
@@ -97,8 +97,11 @@ export default function DashboardContent({ business, user }: { business: any, us
   };
 
   const isOwner = user?.role === 'owner';
+  const isStockManager = user?.role === 'stock_manager';
 
-  const navItems = [
+  const navItems = isStockManager ? [
+    { id: 'inventory', label: 'Stock Management', icon: Package },
+  ] : [
     { id: 'menu', label: 'Menu Items', icon: LayoutDashboard },
     { id: 'add', label: 'Add New', icon: PlusCircle },
     { id: 'qr', label: 'QR Code', icon: QrCode },
@@ -330,7 +333,7 @@ export default function DashboardContent({ business, user }: { business: any, us
             )}
 
             {activeTab === 'inventory' && (
-              <UnifiedInventoryManager business={business} userRole={user?.role === 'manager' ? 'manager' : 'owner'} themeColor={business.themeColor || '#2563eb'} />
+              <UnifiedInventoryManager business={business} userRole={user?.role === 'stock_manager' ? 'stock_manager' : user?.role === 'manager' ? 'manager' : 'owner'} themeColor={business.themeColor || '#2563eb'} />
             )}
 
             {activeTab === 'managers' && isOwner && (

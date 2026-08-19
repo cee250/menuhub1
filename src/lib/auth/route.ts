@@ -84,7 +84,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                   id: manager.id,
                   name: manager.name,
                   slug: manager.slug.toLowerCase(),
-                  role: 'manager',
+                  role: manager.role === 'STOCK_MANAGER' ? 'stock_manager' : 'manager',
                   businessId: manager.businessId,
                   businessSlug: manager.business.slug.toLowerCase()
                 };

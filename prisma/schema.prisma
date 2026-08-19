@@ -80,6 +80,7 @@ model Manager {
   name       String
   slug       String   @unique
   password   String
+  role       String   @default("MANAGER")
   businessId String
   business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())
